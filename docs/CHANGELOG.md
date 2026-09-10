@@ -24,11 +24,10 @@ Decidido:
 - Los tres presets tipográficos quedan fijos en `sora-plex`, `manrope-inter`
   y `outfit-source` (`ADR-014`).
 
-Abierto:
-
 - `ADR-015`: el volumen de órdenes mock y el funnel de `metrics.json` no pueden
-  cumplirse a la vez tal como están enunciados en `KICKOFF.md`. Pendiente de
-  resolver antes del paso 4.
+  cumplirse a la vez tal como están enunciados en `KICKOFF.md`. Resuelto a favor
+  del funnel: se generan ~1.700 órdenes en lugar de 60, y `/admin/pedidos` lleva
+  paginación desde el principio.
 
 Eliminado:
 

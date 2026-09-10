@@ -110,5 +110,5 @@ Una tarea no está terminada hasta que:
   diseño, que es esqueleto hasta el paso 5), `CLAUDE.md`, `README.md`,
   `.env.example`, `.gitignore`.
 - **Sigue:** paso 2 — inicializar el proyecto Next.js en este directorio.
-- **Abierto:** ADR-015 — el volumen de órdenes mock y el funnel del dashboard no
-  cierran entre sí; hay que resolverlo antes del paso 4.
+- **A tener en cuenta:** por ADR-015 el generador produce ~1.700 órdenes, así que
+  `/admin/pedidos` necesita paginación desde el principio.

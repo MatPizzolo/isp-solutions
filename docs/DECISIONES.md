@@ -250,7 +250,7 @@ como para que el cambio se note en la demo del editor de marca.
 ---
 
 ## ADR-015 — El volumen de órdenes mock y el funnel no cierran entre sí
-**Fecha:** 2026-09-09 · **Estado:** **abierta — a resolver antes del paso 4**
+**Fecha:** 2026-09-09 · **Estado:** aceptada — **manda el funnel (opción B)**
 
 **Contexto.** La sección 8.4 del kickoff pide dos cosas que no pueden cumplirse a
 la vez:
@@ -277,13 +277,23 @@ generador.
 - **C — Punto medio.** Se usa el extremo bajo de la hipótesis (compradores 2%) y
   se generan ~1.350 órdenes.
 
-**Recomendación.** Opción B. El "60" es un volumen arbitrario de datos de relleno;
-las tasas del funnel están atadas a la definición oficial de
-`07-metricas-y-kpis.md` y al pitch de la reunión. Un dashboard con un embudo roto
-cuesta más que un JSON más grande.
+**Decisión.** Opción B. El "60" es un volumen arbitrario de datos de relleno; las
+tasas del funnel están atadas a la definición oficial de `07-metricas-y-kpis.md` y
+al pitch de la reunión. Un dashboard con un embudo roto cuesta más que un JSON más
+grande.
 
-**Consecuencias.** Pendiente de confirmación. Se resuelve antes de escribir
-`scripts/generate-mock-data.ts`.
+**Consecuencias.**
+
+- `scripts/generate-mock-data.ts` genera aproximadamente **1.700 órdenes** en los
+  últimos 90 días, no 60. El archivo resultante ronda 1 MB.
+- Funnel de 90 días: 58.000 abonados → ~6.960 visitas (12%) → ~3.480 validados
+  (6%) → ~1.450 compradores (2,5%) → ~1.700 órdenes → GMV ≈ $374M → ingreso ISP
+  ≈ $11,2M con `revenueShare.isp` de 0,03.
+- Se mantiene el ticket promedio entre $180.000 y $260.000 que pide la sección 8.4.
+- `/admin/pedidos` necesita **paginación** desde el principio: una tabla de 1.700
+  filas sin paginar no es usable ni rápida. Se documenta en el plan de diseño.
+- Se mantienen todos los invariantes de `07-metricas-y-kpis.md`, incluida la
+  validación `GMV = Σ órdenes no canceladas` que corre al final del generador.
 
 ---
 
