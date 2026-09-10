@@ -5,6 +5,40 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Paso 3 — Tenant y theming — 2026-09-09
+
+Agregado:
+
+- `src/types/index.ts`: todos los tipos del proyecto. No importa nada, así que lo
+  pueden consumir tanto la app como los scripts que corren fuera de Next.
+- `src/tenants/zonda/tenant.json` con el copy del eje de servicios (`ADR-031`) y
+  el reparto por tipo de ítem (`ADR-029`).
+- `src/tenants/index.ts`: registro `id → Tenant`. Un `NEXT_PUBLIC_TENANT` que no
+  existe **falla ruidosamente** en lugar de caer al default: un tenant mal escrito
+  que degrada en silencio se descubre recién en la reunión.
+- `src/lib/tenant.ts` con `resolveThemeVars()`, `themeStyle()` y `getAdminEmail()`.
+- `src/lib/fonts.ts`: los tres presets, con pesos recortados a los que se usan.
+- `src/lib/storage-keys.ts`, incluida la limpieza por prefijo para "Restablecer
+  demo", que recorre las claves en vez de usar una lista fija.
+- `src/app/globals.css` con el mapeo `@theme inline`, y la inyección de variables
+  en `<html>` desde el layout raíz.
+- Logo, versión para fondo oscuro y favicon del tenant, en SVG.
+- `/dev/tokens`: única UI permitida antes del plan de diseño.
+
+Verificado:
+
+- **El override scoped funciona.** El mismo marcado, dentro de un contenedor con
+  otras variables de marca y sin recibir una sola prop, resuelve `bg-primary` a
+  `rgb(31,111,92)` en vez de `rgb(14,42,71)`, radio 20px en vez de 10px y Outfit
+  en vez de Sora. De esto depende el preview en vivo de `/admin/marca`.
+- **Retematizado sin tocar código.** Cambiando dos colores, el `fontPreset` y el
+  radio en `tenant.json`, la página pasó a `rgb(109,40,217)`, radio 2px y Manrope.
+- `grep -ri "zonda" src/components src/app` → 0 resultados.
+- Sin hex hardcodeados fuera de `globals.css` y de `/dev/tokens`, donde los dos
+  colores del ejemplo de override son justamente el contenido de la página.
+- Cero errores de consola. `typecheck`, `lint`, `test`, `format:check` y `build`
+  limpios.
+
 ### Integración con los sistemas de cada ISP — 2026-09-09
 
 Agregado:

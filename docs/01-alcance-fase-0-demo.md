@@ -124,7 +124,7 @@ Leyenda: ⬜ pendiente · 🟡 en curso · ✅ listo
 
 | Ruta | Estado |
 |---|---|
-| `/dev/tokens` | ⬜ |
+| `/dev/tokens` | ✅ |
 
 ## Criterios de aceptación
 

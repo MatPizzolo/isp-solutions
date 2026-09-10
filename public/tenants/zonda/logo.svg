@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 208 44" role="img" aria-label="Zonda Fibra" width="208" height="44">
+  <title>Zonda Fibra</title>
+  <!-- Trazo de viento: tres ráfagas que salen del isotipo y se afinan hacia la
+       derecha. El "zonda" es un viento cálido del oeste. -->
+  <g fill="none" stroke="#0E2A47" stroke-linecap="round">
+    <path d="M6 14c6-4 13-4 19 0" stroke-width="3" opacity=".35" />
+    <path d="M4 22c8-5 18-5 26 0" stroke-width="3" opacity=".65" />
+    <path d="M6 30c6 4 13 4 19 0" stroke-width="3" opacity=".35" />
+  </g>
+  <path d="M34 12h1.5" stroke="#F2A43A" stroke-width="3" stroke-linecap="round" />
+  <g fill="#0E2A47" font-family="Sora, 'Trebuchet MS', sans-serif">
+    <text x="44" y="28" font-size="20" font-weight="700" letter-spacing="-0.4">Zonda</text>
+    <text x="119" y="28" font-size="20" font-weight="400" letter-spacing="-0.2" fill="#55627A">Fibra</text>
+  </g>
+</svg>

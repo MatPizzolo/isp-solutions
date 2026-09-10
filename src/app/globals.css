@@ -1,1 +1,79 @@
 @import "tailwindcss";
+
+/*
+  Dos capas de nombres, y no pueden llamarse igual:
+
+    --brand-*  variables de marca. Se inyectan en runtime desde tenant.json,
+               sobre <html> o sobre cualquier contenedor scoped.
+    --color-*  claves del tema. Las declara @theme inline apuntando a las de
+               arriba, y son las que generan las utilidades de Tailwind.
+
+  @theme inline no es una preferencia de estilo: es un requisito. Sin `inline`,
+  Tailwind emitiría `--color-primary: var(--brand-primary)` en :root, la custom
+  property se computaría ahí, y redefinir --brand-primary en un contenedor
+  anidado no tendría ningún efecto. Con `inline`, la utilidad queda como
+  `.bg-primary { background-color: var(--brand-primary) }` y el var() se resuelve
+  en el elemento que la consume. De eso depende el preview en vivo de
+  /admin/marca. Ver ADR-011.
+*/
+
+/* Fallback de build: en runtime los pisa el atributo style de <html>, que gana
+   por especificidad. Están acá para que el archivo sea válido por sí solo. */
+:root {
+  --brand-primary: #0e2a47;
+  --brand-primary-hover: #173c63;
+  --brand-accent: #f2a43a;
+  --brand-accent-hover: #e0912a;
+  --brand-background: #f3f5f8;
+  --brand-surface: #ffffff;
+  --brand-text: #142033;
+  --brand-text-muted: #55627a;
+  --brand-border: #d9dfe8;
+  --brand-success: #1e8a5f;
+  --brand-danger: #c8401f;
+  --brand-radius: 10px;
+  --brand-radius-sm: 6px;
+}
+
+@theme inline {
+  --color-primary: var(--brand-primary);
+  --color-primary-hover: var(--brand-primary-hover);
+  --color-accent: var(--brand-accent);
+  --color-accent-hover: var(--brand-accent-hover);
+  --color-background: var(--brand-background);
+  --color-surface: var(--brand-surface);
+  /* `text-text` se lee mal; el color de tinta se llama `ink`. */
+  --color-ink: var(--brand-text);
+  --color-muted: var(--brand-text-muted);
+  --color-line: var(--brand-border);
+  --color-success: var(--brand-success);
+  --color-danger: var(--brand-danger);
+
+  --radius-base: var(--brand-radius);
+  --radius-sm: var(--brand-radius-sm);
+
+  --font-display: var(--font-heading);
+  --font-sans: var(--font-body);
+}
+
+@layer base {
+  body {
+    background-color: var(--color-background);
+    color: var(--color-ink);
+    font-family: var(--font-sans);
+  }
+
+  h1,
+  h2,
+  h3,
+  h4 {
+    font-family: var(--font-display);
+  }
+
+  /* Foco visible en todo el proyecto, sin tener que acordarse en cada
+     componente. Es piso de calidad, no decoración. */
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+}

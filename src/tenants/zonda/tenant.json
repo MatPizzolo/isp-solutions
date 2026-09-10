@@ -1,0 +1,63 @@
+{
+  "id": "zonda",
+  "platformName": "Nexo Beneficios",
+  "name": "Zonda Fibra",
+  "orderPrefix": "ZF",
+  "legalName": "Zonda Telecomunicaciones S.A.",
+  "tagline": "Internet que te acerca",
+  "city": "San Andrés del Río",
+  "province": "Provincia de Buenos Aires",
+  "subscribers": 58000,
+  "website": "zondafibra.com.ar",
+  "supportWhatsapp": "+54 9 2477 00-0000",
+  "supportEmail": "beneficios@zondafibra.com.ar",
+  "logo": "/tenants/zonda/logo.svg",
+  "logoDark": "/tenants/zonda/logo-dark.svg",
+  "theme": {
+    "colors": {
+      "primary": "#0E2A47",
+      "primaryHover": "#173C63",
+      "accent": "#F2A43A",
+      "accentHover": "#E0912A",
+      "background": "#F3F5F8",
+      "surface": "#FFFFFF",
+      "text": "#142033",
+      "textMuted": "#55627A",
+      "border": "#D9DFE8",
+      "success": "#1E8A5F",
+      "danger": "#C8401F"
+    },
+    "fontPreset": "sora-plex",
+    "radius": "10px",
+    "radiusSm": "6px"
+  },
+  "identification": {
+    "primaryField": "dni",
+    "alternativeField": "customerNumber",
+    "label": "Ingresá tu DNI o número de cliente"
+  },
+  "plans": [
+    { "id": "fibra-100", "name": "Fibra 100", "speedMbps": 100, "tier": "base" },
+    { "id": "fibra-300", "name": "Fibra 300", "speedMbps": 300, "tier": "base" },
+    { "id": "fibra-600-tv", "name": "Fibra 600 + TV", "speedMbps": 600, "tier": "premium" }
+  ],
+  "benefits": {
+    "premiumDiscount": 0.12,
+    "freeShippingFrom": 150000,
+    "installmentsWithoutInterest": 6
+  },
+  "revenueShare": {
+    "products": { "isp": 0.03, "platform": 0.05 },
+    "services": { "isp": 0.25, "platform": 0.15 },
+    "planUpgrades": { "isp": 1.0, "platform": 0.0 }
+  },
+  "storeCopy": {
+    "heroTitle": "Todo lo que podés sumar a tu Zonda Fibra",
+    "heroSubtitle": "TV, celular, gaming y seguridad digital, con precio de cliente y en la misma factura que ya pagás.",
+    "howItWorks": [
+      "Ingresá tu DNI o número de cliente.",
+      "Confirmamos que tu cuenta esté activa.",
+      "Lo sumás a tu factura y lo usás enseguida."
+    ]
+  }
+}

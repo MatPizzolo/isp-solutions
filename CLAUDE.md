@@ -147,7 +147,12 @@ Una tarea no está terminada hasta que:
   físicos a tienda de servicios sobre la factura del ISP, con visión y misión
   explícitas y cero comisión sobre los planes propios del operador. Los docs
   están alineados; `KICKOFF.md` queda intacto como especificación original.
-- **Sigue:** paso 3 — tenant, theming y `/dev/tokens`.
+- **Hecho:** paso 3 — tenant, theming, tipos, fuentes, claves de storage, logo y
+  `/dev/tokens`. Verificado que el override scoped retematiza sin props y que
+  cambiar `tenant.json` retematiza todo sin tocar código.
+- **Sigue:** paso 4 — datos mock (`catalog.json` con 18 servicios y 12 productos,
+  abonados, promociones, generador de órdenes y métricas) y las funciones de
+  `src/lib/*` con sus tests.
 - **A tener en cuenta:**
   - Importes de un solo tiro y mensuales **nunca se suman entre sí**.
   - El generador produce ~2.400 transacciones (ADR-015), así que `/admin/pedidos`
