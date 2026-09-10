@@ -91,17 +91,34 @@ Reglas comunes:
 
 ```
 /tienda
-   ├─ filtros: categoría (chips), búsqueda por texto
+   ├─ chips de categoría: TV · Celular · Gaming · Seguridad digital ·
+   │                      Tu plan · y las de producto físico
+   ├─ búsqueda por texto
    ├─ orden: relevancia | precio ascendente | precio descendente | ahorro
-   └─ grilla de productos activos
+   ├─ módulo "Tu plan" arriba de todo, solo con sesión:
+   │     "Tenés {plan actual} — pasá a {plan siguiente} por ${delta} más por mes"
+   │     (no se muestra si el abonado ya está en el plan más alto)
+   └─ grilla de ítems activos
         │
-        └─▶ /producto/[slug]
-                ├─ sin sesión: precio público + precio exclusivo con candado
-                │              CTA "Ingresá tu DNI para ver tu precio"
-                ├─ con sesión: público tachado, exclusivo, ahorro en $ y %,
-                │              cuotas sin interés, specs, stock
-                └─ stock 0:    "Sin stock por ahora", botón deshabilitado
+        └─▶ /beneficio/[slug]
+                ├─ sin sesión:  precio público + precio exclusivo con candado
+                │               CTA "Ingresá tu DNI para ver tu precio"
+                ├─ con sesión, producto físico:
+                │      público tachado, exclusivo, ahorro en $ y %,
+                │      cuotas sin interés, specs, stock
+                ├─ con sesión, servicio:
+                │      público tachado, exclusivo por mes, ahorro mensual,
+                │      permanencia, cuándo se activa, desde qué factura se cobra
+                ├─ servicio incluido en el plan:
+                │      "Incluido en tu plan" en lugar del precio,
+                │      botón "Activar" en lugar de "Contratar"
+                └─ stock 0 (solo físicos): "Sin stock por ahora", botón deshabilitado
 ```
+
+El **módulo "Tu plan"** es el momento de personalización más fuerte de la tienda
+(`ADR-027`). Camila, con Fibra 100, ve el pase a Fibra 300; Lucía, con Fibra 300,
+ve el pase a Fibra 600 + TV; Martín, que ya tiene el plan más alto, no ve el
+módulo. Es lo que hace que la tienda se sienta "Mi Cuenta" y no una vidriera.
 
 Estados de la búsqueda:
 
@@ -117,40 +134,86 @@ directa: devuelve 404.
 
 ```
 Agregar al carrito
-   ├─ producto sin stock  ──▶ bloqueado, no se puede agregar
-   ├─ cantidad > stock    ──▶ se limita al stock disponible
-   └─ ok                  ──▶ se guarda { productId, quantity }
-                              se abre el drawer lateral con el item agregado
+   ├─ producto sin stock   ──▶ bloqueado, no se puede agregar
+   ├─ cantidad > stock     ──▶ se limita al stock disponible
+   ├─ servicio             ──▶ cantidad siempre 1, sin control de cantidad
+   ├─ servicio ya contratado ──▶ bloqueado: "Ya tenés este servicio activo"
+   ├─ servicio incluido en el plan ──▶ no va al carrito: se activa directo
+   └─ ok                   ──▶ se guarda { itemId, quantity }
+                               se abre el drawer lateral con el ítem agregado
+```
+
+El carrito muestra **dos totales que nunca se suman entre sí**:
+
+```
+Pagás hoy                       $ 468.000
+  Smart TV 50"                  $ 468.000
+  Envío                             gratis
+
+Se suma a tu factura          $ 9.900 / mes
+  Pack Streaming Total        $ 9.900 / mes
+
+Estás ahorrando $ 52.000 hoy y $ 2.100 por mes por ser cliente de {tenant.name}
 ```
 
 - El carrito **nunca guarda precios**. Se recalculan con `computePrice` en cada
   render, así que un cambio de precio en el admin o el vencimiento de una promo
   se ven al instante.
-- Envío: gratis desde `benefits.freeShippingFrom`. Si falta poco, se muestra
-  "Te faltan {monto} para el envío gratis".
-- Ahorro total: "Estás ahorrando {monto} por ser cliente de {tenant.name}".
-- Vacío: "Tu carrito está vacío. Mirá los productos con tu precio de cliente." con
-  un botón a `/tienda`.
+- Envío: gratis desde `benefits.freeShippingFrom`, y solo cuenta el subtotal de
+  ítems físicos. Si falta poco, se muestra "Te faltan {monto} para el envío
+  gratis". Un carrito de solo servicios no muestra envío en absoluto.
+- Vacío: "Tu carrito está vacío. Mirá lo que podés sumar con tu precio de
+  cliente." con un botón a `/tienda`.
 
 ## 5. Checkout
+
+El checkout tiene **dos formas**, según qué haya en el carrito. Es la diferencia
+más visible del reencuadre a servicios (`ADR-024`, `ADR-026`).
+
+### 5.a Solo servicios — el camino corto
 
 ```
 ¿Hay sesión activa?
    ├─ no ──▶ redirigir a /ingresar?next=/checkout
    └─ sí ──▶
-        Paso 1 · Datos de entrega
-           prellenados desde el abonado, editables
-           validación: calle, número, localidad y CP obligatorios
-        Paso 2 · Pago (simulado)
-           ○ Mercado Pago
-           ○ Tarjeta en {benefits.installmentsWithoutInterest} cuotas sin interés
-           ○ Débito en la factura de {tenant.name}   [próximamente, deshabilitado]
-        Paso 3 · Revisión
-           items, subtotal, envío, ahorro total, total
-           botón único: "Simular pago aprobado"
+        Paso 1 · Confirmación
+           qué se contrata, cuánto suma por mes, desde qué factura se cobra,
+           cuándo se activa y si tiene permanencia
+           cobro: "Se suma a tu factura de {tenant.name}"   ← único método
+        Paso 2 · Listo
+           botón único: "Confirmar y activar"
 ```
 
+**Sin dirección de entrega, sin datos de pago, sin envío.** Dos pasos y afuera.
+Es el flujo más corto de toda la demo y por eso el más fácil de mostrar en la
+reunión: el abonado no tiene que sacar la tarjeta ni crear una cuenta en ningún
+lado.
+
+### 5.b Con productos físicos
+
+```
+Paso 1 · Datos de entrega
+   prellenados desde el abonado, editables
+   validación: calle, número, localidad y CP obligatorios
+Paso 2 · Pago
+   ● Débito en la factura de {tenant.name}        ← preseleccionado
+   ○ Mercado Pago
+   ○ Tarjeta en {benefits.installmentsWithoutInterest} cuotas sin interés
+Paso 3 · Revisión
+   ítems, subtotal, envío, ahorro
+   si además hay servicios, el resumen muestra los dos renglones por separado:
+      "Pagás hoy: $X"   ·   "Se suma a tu factura: $Y por mes"
+   botón único: "Confirmar pedido"
+```
+
+El débito en factura es el método **principal y preseleccionado**, no una opción
+futura (`ADR-026`): es la única capacidad que ningún competidor puede copiar. Los
+otros dos quedan como alternativa.
+
 No se piden ni se muestran datos de tarjeta en ningún momento.
+
+**Los importes de un solo tiro y los mensuales nunca se suman entre sí.** Un total
+que mezcle $468.000 con $9.900 por mes es un número que no significa nada.
 
 Al confirmar:
 
@@ -158,8 +221,15 @@ Al confirmar:
 createOrder()
    ├─ id = {tenant.orderPrefix}-{año}-{secuencia de 4 dígitos}
    ├─ status = 'paid'
-   ├─ congela publicPrice, finalPrice y appliedLabel de cada item
+   ├─ congela publicPrice, finalPrice y appliedLabel de cada ítem
    ├─ guarda en nexo:orders:<tenantId>
+   ├─ por cada ítem de servicio → createSubscription()
+   │     ├─ status según item.activation:
+   │     │     instant       → 'active'
+   │     │     next_invoice  → 'pending_activation'
+   │     │     technician    → 'scheduled_visit'
+   │     ├─ billedFrom = próxima factura
+   │     └─ guarda en nexo:subscriptions:<tenantId>
    ├─ vacía el carrito
    └─ redirige a /pedido/[id]
 ```
@@ -169,25 +239,46 @@ createOrder()
 ```
 /pedido/[id]
    ├─ número de pedido, fecha y estado actual
-   ├─ resumen de items con lo que se ahorró en cada uno
-   ├─ dirección de entrega
-   └─ timeline:  Confirmado ──▶ Preparando ──▶ En camino ──▶ Entregado
-                 (los estados posteriores al actual se ven apagados)
+   ├─ resumen de ítems con lo que se ahorró en cada uno,
+   │  con los renglones de un solo tiro y los mensuales separados
+   │
+   ├─ si tiene ítems físicos:
+   │     dirección de entrega
+   │     timeline:  Confirmado ──▶ Preparando ──▶ En camino ──▶ Entregado
+   │                (los estados posteriores al actual se ven apagados)
+   │
+   └─ si es solo de servicios:
+         sin timeline de entrega
+         "Se activa {cuándo}" y "Se cobra desde tu factura de {mes}"
 ```
 
 - Un pedido `cancelled` muestra el aviso fuera de la timeline.
 - En modo demo aparece un botón "Avanzar estado" que mueve el pedido al siguiente
-  estado. No existe fuera de modo demo.
+  estado. Solo aparece si el pedido tiene ítems físicos: un servicio no tiene
+  estados de entrega que avanzar.
 - Un id inexistente devuelve 404.
 
-## 7. Mis pedidos
+## 7. Mis servicios y mis pedidos
 
 ```
+/mis-servicios
+   ├─ sin sesión     ──▶ redirigir a /ingresar?next=/mis-servicios
+   ├─ sin servicios  ──▶ "Todavía no sumaste ningún servicio."
+   │                     + botón "Ver qué podés sumar"
+   └─ con servicios  ──▶ lista con estado, precio mensual y desde cuándo
+                         + total: "Estás sumando ${monto} por mes a tu factura"
+                         + los incluidos en el plan aparecen en $0,
+                           marcados como "Incluido en tu plan"
+
 /mis-pedidos
    ├─ sin sesión  ──▶ redirigir a /ingresar?next=/mis-pedidos
    ├─ sin pedidos ──▶ "Todavía no hiciste ningún pedido." + botón "Ver productos"
    └─ con pedidos ──▶ lista ordenada por fecha, con estado y total
 ```
+
+Son dos pantallas separadas a propósito: un servicio activo y un pedido entregado
+son cosas distintas y se consultan por motivos distintos. Mezclarlas en una sola
+lista obligaría a explicar la diferencia con etiquetas.
 
 ## 8. Admin
 

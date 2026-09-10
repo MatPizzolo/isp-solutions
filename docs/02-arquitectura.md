@@ -43,12 +43,20 @@ nada más.
 
 | Dato | Dueño | Ubicación | Por qué |
 |---|---|---|---|
-| Catálogo de productos | Plataforma | `src/data/products.json` | Se negocia una vez y lo comparten todos los ISPs. Por eso el SKU lleva prefijo `NX-` y no el del ISP |
+| Catálogo (servicios y productos) | Plataforma | `src/data/catalog.json` | Se negocia una vez y lo comparten todos los ISPs. Por eso el SKU lleva prefijo `NX-` y no el del ISP |
 | Configuración de marca | Tenant | `src/tenants/<id>/tenant.json` | Es lo que hace que la tienda sea del ISP |
 | Abonados | Tenant | `src/tenants/<id>/subscribers.json` | Es la base de clientes del ISP; en producción nunca sale de su sistema |
 | Promociones | Tenant | `src/tenants/<id>/promotions.json` | Cada ISP decide sus promos |
 | Órdenes | Tenant | `src/tenants/<id>/orders.json` | Generadas por script; en producción van a base de datos |
-| Métricas | Tenant | `src/tenants/<id>/metrics.json` | Derivadas de las órdenes |
+| Suscripciones | Tenant | `src/tenants/<id>/subscriptions.json` | Servicios activos por abonado. Son la base del MRR |
+| Métricas | Tenant | `src/tenants/<id>/metrics.json` | Derivadas de órdenes y suscripciones |
+
+**Los upgrades de plan son la excepción interesante.** Viven en el catálogo de la
+plataforma, pero referencian planes del tenant (`fromPlanId`, `toPlanId`), así que
+solo aparecen si el tenant tiene esos planes definidos. Es el único punto donde el
+catálogo compartido y la configuración del tenant se cruzan, y `catalog.ts` lo
+resuelve filtrando: un upgrade cuyos planes no existen en el tenant activo
+simplemente no se lista.
 
 ## Resolución del tenant
 
@@ -119,8 +127,9 @@ Todo lo persistente vive en `localStorage`, con las claves centralizadas en
 | Clave | Dueño | Contenido | Vida |
 |---|---|---|---|
 | `nexo:session:<tenantId>` | `SessionContext` | Abonado validado: id, nombre, plan, tier, `validatedAt` | 24 h |
-| `nexo:cart:<tenantId>` | `CartContext` | `{ productId, quantity }[]` — **nunca precios** | Hasta vaciarse |
+| `nexo:cart:<tenantId>` | `CartContext` | `{ itemId, quantity }[]` — **nunca precios** | Hasta vaciarse |
 | `nexo:orders:<tenantId>` | `CartContext` / `orders.ts` | Órdenes creadas durante la demo | Persistente |
+| `nexo:subscriptions:<tenantId>` | `orders.ts` | Servicios dados de alta durante la demo | Persistente |
 | `nexo:admin-session:<tenantId>` | `AdminContext` | Sesión del admin mock | Persistente |
 | `nexo:admin-overrides:<tenantId>` | `AdminContext` | Overrides parciales de catálogo, promos y marca | Persistente |
 | `nexo:reveal:<tenantId>` | `SessionContext` | Flag one-shot de revelación (en **`sessionStorage`**) | Se consume una vez |
@@ -218,7 +227,7 @@ page.tsx        Server Component. Carga datos base con src/lib/*.
                      estado de UI sobre los datos que recibió.
 ```
 
-Las rutas dinámicas (`/producto/[slug]`, `/tienda/[category]`) usan
+Las rutas dinámicas (`/beneficio/[slug]`, `/tienda/[category]`) usan
 `generateStaticParams` sobre el catálogo base.
 
 `"use client"` aparece solo donde hay estado o eventos. Los contextos y los
@@ -247,9 +256,11 @@ ruta hacia `/tienda`.
 | Elegibilidad | `checkSubscriber()` busca en `subscribers.json` del tenant tras normalizar la entrada a dígitos |
 | Sesión del abonado | Objeto en `localStorage` con vencimiento a 24 h. No hay token ni verificación |
 | Login del admin | Comparación de usuario y clave en el cliente. Decorativo |
-| Pago | Un botón "Simular pago aprobado". No se piden datos de tarjeta ni se llama a nada |
+| Cobro en factura | Se confirma y listo. No hay integración con el sistema de facturación del ISP |
+| Pago con tarjeta | Un botón "Simular pago aprobado". No se piden datos de tarjeta ni se llama a nada |
 | Creación de orden | `createOrder()` genera el id `{orderPrefix}-{año}-{4 dígitos}`, estado `paid`, y la guarda en `localStorage` |
-| Historial de órdenes | `getOrders()` devuelve las mock del JSON más las creadas en la demo |
+| Alta de servicio | Los ítems de servicio de una orden generan suscripciones en `nexo:subscriptions:<tenantId>` |
+| Historial | `getOrders()` y `getSubscriptions()` devuelven lo mock del JSON más lo creado en la demo |
 | Cambios del admin | Overrides parciales sobre los JSON base; la tienda lee `base + overrides` vía `applyOverrides()` |
 
 ## Puntos de corte hacia la Fase 1
@@ -260,10 +271,17 @@ existe para que estos reemplazos sean localizados y no una reescritura.
 | # | Archivo | Hoy | Fase 1 |
 |---|---|---|---|
 | 1 | `src/lib/eligibility.ts` | Lee `subscribers.json` | Consulta la API o el archivo de abonados elegibles del ISP. La firma de `checkSubscriber()` pasa a asíncrona; el resto de la app no cambia |
-| 2 | `src/lib/orders.ts` → `createOrder()` | Escribe en `localStorage` | Crea la orden contra la base de datos, después de que Mercado Pago confirme el pago |
-| 3 | `src/contexts/AdminContext.tsx` | Overrides en `localStorage` | Escribe contra la API de administración; la tienda deja de necesitar `applyOverrides()` porque los datos ya vienen aplicados |
+| 2 | `src/lib/orders.ts` → `createSubscription()` | Escribe en `localStorage` | **Da de alta el concepto en el sistema de facturación del ISP.** Es el corte más importante bajo el encuadre de servicios, y es más simple que integrar una pasarela: se agrega un ítem a una factura que el ISP ya emite |
+| 3 | `src/lib/orders.ts` → `createOrder()` | Escribe en `localStorage` | Crea la orden contra la base de datos. Solo si hay ítems físicos hace falta Mercado Pago |
+| 4 | `src/contexts/AdminContext.tsx` | Overrides en `localStorage` | Escribe contra la API de administración; la tienda deja de necesitar `applyOverrides()` porque los datos ya vienen aplicados |
 
-Los tres están marcados con un comentario `// PUNTO DE CORTE FASE 1` en el código.
+Los cuatro están marcados con un comentario `// PUNTO DE CORTE FASE 1` en el
+código.
+
+El orden de reemplazo cambió con el reencuadre a servicios (`ADR-024`): el segundo
+punto de corte ya no es la pasarela de pagos sino la conciliación con la
+facturación del ISP. Un piloto que arranque solo con servicios **no necesita
+Mercado Pago en absoluto**, lo que acorta bastante el camino a producción.
 
 ## Convenciones que hacen que esto se sostenga
 

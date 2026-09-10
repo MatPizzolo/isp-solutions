@@ -25,7 +25,7 @@ Configuración del ISP. Un archivo por tenant en `src/tenants/<id>/tenant.json`.
 | `identification` | `Identification` | Qué campo se pide y con qué etiqueta |
 | `plans` | `Plan[]` | Planes del ISP |
 | `benefits` | `Benefits` | Descuento premium, envío gratis desde, cuotas sin interés |
-| `revenueShare` | `RevenueShare` | `isp` y `platform`, como fracción del GMV |
+| `revenueShare` | `RevenueShare` | Una entrada por tipo de ítem. Ver abajo |
 | `storeCopy` | `StoreCopy` | Textos del hero y los tres pasos de "cómo funciona" |
 
 ```ts
@@ -52,50 +52,118 @@ interface Benefits {
   freeShippingFrom: number;             // en pesos
   installmentsWithoutInterest: number;  // cantidad de cuotas
 }
+
+/**
+ * Un porcentaje único no sirve: la reventa de hardware deja ~10% de margen
+ * total, un servicio recurrente deja mucho más, y un upgrade del plan propio
+ * del ISP no tiene costo de mercadería. Ver ADR-029.
+ */
+interface RevenueShare {
+  products:     { isp: number; platform: number };
+  services:     { isp: number; platform: number };
+  planUpgrades: { isp: number; platform: number };
+}
 ```
+
+En productos físicos la plataforma se queda con más que el ISP, porque pone el
+catálogo y el fulfillment. En servicios se invierte, porque el ISP pone la
+relación con el cliente y la cobranza. En upgrades de plan la plataforma cobra
+apenas una comisión de canal sobre un servicio que es enteramente del ISP.
 
 **Regla de copy con marca:** todo texto que nombre al ISP, al plan o a las cuotas
 se interpola desde el tenant. Nunca se escribe el nombre del ISP ni una cantidad
 de cuotas dentro de un componente.
 
-## Product
+## CatalogItem
 
-Catálogo **de la plataforma**, en `src/data/products.json`. Compartido por todos
+Catálogo **de la plataforma**, en `src/data/catalog.json`. Compartido por todos
 los ISPs; por eso el SKU lleva prefijo de plataforma y no del ISP.
+
+El catálogo tiene **dos tipos de ítem** y el campo `kind` los discrimina
+(`ADR-024`). La diferencia no es cosmética: un servicio no tiene stock, no se
+envía, se cobra todos los meses en la factura del ISP y puede venir incluido en el
+plan del abonado.
+
+```ts
+type CatalogItem = PhysicalProduct | ServiceItem;
+```
+
+### Campos comunes
 
 | Campo | Tipo | Regla |
 |---|---|---|
-| `id` | `string` | `{prefijo de categoría}-{3 dígitos}`, p. ej. `con-001` |
-| `slug` | `string` | Único. Es la URL en `/producto/[slug]` |
+| `kind` | `'product' \| 'service'` | Discriminante de la unión |
+| `id` | `string` | `{prefijo de categoría}-{3 dígitos}`, p. ej. `con-001`, `tv-002` |
+| `slug` | `string` | Único en todo el catálogo. Es la URL |
 | `sku` | `string` | Prefijo `NX-` |
 | `name` | `string` | |
-| `category` | `CategoryId` | Una de las cinco |
+| `category` | `CategoryId` | Ver la tabla de categorías |
 | `brand` | `string` | **Ficticia.** Ninguna marca real |
 | `shortDescription` | `string` | Una línea, para la card |
 | `description` | `string` | Dos o tres párrafos, sin exagerar |
-| `publicPrice` | `number` | Pesos, entero |
-| `exclusivePrice` | `number` | Entre 6% y 14% por debajo del público |
-| `supplierCost` | `number` | Entre 8% y 12% por debajo del exclusivo. **Es el piso duro de precio** |
-| `stock` | `number` | `0` significa sin stock: no se puede agregar al carrito |
-| `featured` | `boolean` | Seis productos en `true` |
+| `featured` | `boolean` | Seis ítems en `true` |
 | `active` | `boolean` | En `false` no aparece en la tienda, sí en el admin |
 | `image` | `string \| null` | `null` en Fase 0 → se usa `ProductPlaceholder` |
 | `specs` | `{ label, value }[]` | |
 | `tags` | `string[]` | |
+
+### `PhysicalProduct`
+
+Compra de un solo tiro, con stock y envío.
+
+| Campo | Tipo | Regla |
+|---|---|---|
+| `publicPrice` | `number` | Pesos, entero |
+| `exclusivePrice` | `number` | Entre 6% y 14% por debajo del público |
+| `supplierCost` | `number` | Entre 8% y 12% por debajo del exclusivo. **Piso duro de precio** |
+| `stock` | `number` | `0` significa sin stock: no se puede agregar al carrito |
 | `installmentsEligible` | `boolean` | Si es `false` no se muestran cuotas |
+
+### `ServiceItem`
+
+Alta recurrente, cobrada en la factura del ISP.
+
+| Campo | Tipo | Regla |
+|---|---|---|
+| `publicMonthlyPrice` | `number` | Precio mensual sin ser abonado |
+| `exclusiveMonthlyPrice` | `number` | Entre 6% y 25% por debajo del público |
+| `providerMonthlyCost` | `number` | Lo que cuesta el servicio. **Piso duro de precio** |
+| `includedInTiers` | `('base' \| 'premium')[]` | Tiers que ya lo tienen **sin cargo** |
+| `commitmentMonths` | `number` | `0` = sin permanencia |
+| `activation` | `'instant' \| 'next_invoice' \| 'technician'` | Cuándo empieza a funcionar |
+| `fromPlanId` | `string \| undefined` | Solo `plan`: desde qué plan aplica el upgrade |
+| `toPlanId` | `string \| undefined` | Solo `plan`: a qué plan lleva |
+
+`includedInTiers` es lo que vuelve **concreto** el beneficio del plan premium. Un
+12% de descuento es abstracto; *"tu plan ya incluye esto sin cargo"* no lo es. Un
+ítem incluido muestra la etiqueta "Incluido en tu plan" en lugar de un precio, y
+el botón dice "Activar" en vez de "Contratar".
+
+`fromPlanId` y `toPlanId` hacen que cada abonado vea **solo el upgrade que le
+corresponde** (`ADR-027`). Lucía, con Fibra 300, ve el pase a Fibra 600 + TV;
+Camila, con Fibra 100, ve el pase a Fibra 300; quien ya está en el plan más alto
+no ve el módulo. Es el momento de personalización más fuerte de la demo.
 
 ### Categorías
 
-| id | Nombre | Productos |
-|---|---|---|
-| `conectividad` | Conectividad | 8 |
-| `seguridad` | Seguridad | 6 |
-| `entretenimiento` | Entretenimiento | 5 |
-| `tecnologia` | Tecnología | 6 |
-| `hogar` | Hogar conectado | 5 |
+Las tres primeras son las que abren la landing, en ese orden (`ADR-025`).
 
-Total: 30. Dos productos con `stock: 0` y uno con `active: false`, para poder
-mostrar esos estados.
+| Tipo | Categoría | id | Cantidad |
+|---|---|---|---|
+| Servicio | TV y streaming | `tv` | 5 |
+| Servicio | Celular | `celular` | 3 |
+| Servicio | Gaming | `gaming` | 3 |
+| Servicio | Seguridad digital | `seguridad-digital` | 3 |
+| Servicio | Tu plan de Internet | `plan` | 4 |
+| Producto | Conectividad | `conectividad` | 3 |
+| Producto | Seguridad del hogar | `seguridad` | 3 |
+| Producto | Entretenimiento | `entretenimiento` | 2 |
+| Producto | Tecnología | `tecnologia` | 2 |
+| Producto | Hogar conectado | `hogar` | 2 |
+
+Total: 30 — 18 servicios y 12 productos. Los dos ítems con `stock: 0` y el ítem
+con `active: false` que pide el kickoff para probar esos estados salen del bloque
+de productos físicos, que es donde el stock existe.
 
 ## Subscriber
 
@@ -183,26 +251,35 @@ interface Order {
   createdAt: string;       // ISO datetime
   status: OrderStatus;
   items: OrderItem[];
-  subtotal: number;        // Σ finalPrice × quantity
-  shipping: number;        // 0 si subtotal >= benefits.freeShippingFrom
-  total: number;           // subtotal + shipping
-  savings: number;         // Σ (publicPrice − finalPrice) × quantity
-  address: Address;
-  paymentMethod: 'mercadopago' | 'card' | 'invoice';
+  hasPhysicalItems: boolean;   // decide si hay envío y timeline de entrega
+  oneOffSubtotal: number;      // Σ de los ítems 'once'
+  monthlySubtotal: number;     // Σ de los ítems 'monthly' — NO se suma al anterior
+  shipping: number;            // 0 si no hay físicos, o si supera freeShippingFrom
+  oneOffTotal: number;         // oneOffSubtotal + shipping
+  oneOffSavings: number;
+  monthlySavings: number;
+  address: Address | null;     // null si la orden es solo de servicios
+  paymentMethod: 'invoice' | 'mercadopago' | 'card';
 }
 
 interface OrderItem {
-  productId: string;
-  productName: string;
-  quantity: number;
-  publicPrice: number;     // congelado al momento de la compra
-  finalPrice: number;      // congelado al momento de la compra
-  appliedLabel: string;    // qué beneficio ganó
+  itemId: string;
+  itemName: string;
+  kind: 'product' | 'service';
+  period: 'once' | 'monthly';
+  quantity: number;            // siempre 1 en servicios
+  publicPrice: number;         // congelado al momento de la compra
+  finalPrice: number;          // congelado al momento de la compra
+  appliedLabel: string;        // qué beneficio ganó
 }
 ```
 
+**Los importes de un solo tiro y los mensuales nunca se suman entre sí.** Una
+orden de un Smart TV y un pack de streaming son $468.000 una vez **y** $9.900 por
+mes: dos renglones, dos totales. Sumarlos daría un número que no significa nada.
+
 Los precios se congelan **en la orden**, porque una orden es un hecho histórico.
-En el **carrito** pasa lo contrario: solo se guarda `{ productId, quantity }` y el
+En el **carrito** pasa lo contrario: solo se guarda `{ itemId, quantity }` y el
 precio se recalcula siempre, para que un cambio del admin o el vencimiento de una
 promo se reflejen al instante.
 
@@ -212,13 +289,50 @@ promo se reflejen al instante.
 |---|---|---|
 | `pending` | Pendiente de pago | No aparece en el flujo de la demo: el checkout crea `paid` |
 | `paid` | Confirmado | Estado inicial de una orden creada en la demo |
-| `processing` | Preparando | |
-| `shipped` | En camino | |
-| `delivered` | Entregado | |
+| `processing` | Preparando | Solo con ítems físicos |
+| `shipped` | En camino | Solo con ítems físicos |
+| `delivered` | Entregado | Solo con ítems físicos |
 | `cancelled` | Cancelado | Se muestra fuera de la timeline |
 
-La timeline de `/pedido/[id]` es exactamente esta lista **sin `pending` ni
-`cancelled`**: Confirmado → Preparando → En camino → Entregado.
+La timeline de `/pedido/[id]` depende de qué se compró:
+
+- **Con ítems físicos:** Confirmado → Preparando → En camino → Entregado.
+- **Solo servicios:** no hay timeline de entrega. Muestra la fecha de activación y
+  desde qué factura se cobra. Es un flujo de dos pasos, y por eso es el más corto
+  y el más demostrable.
+
+## Subscription
+
+Un ítem de servicio contratado genera una suscripción, que es lo que después se
+ve en "Mis servicios" y lo que alimenta las métricas recurrentes.
+
+```ts
+interface Subscription {
+  id: string;
+  subscriberId: string;
+  itemId: string;
+  itemName: string;
+  orderId: string;             // la orden que la originó
+  status: SubscriptionStatus;
+  monthlyPrice: number;        // 0 si vino incluida en el plan
+  publicMonthlyPrice: number;
+  appliedLabel: string;
+  startedAt: string;           // ISO date
+  billedFrom: string;          // desde qué factura se cobra
+  commitmentUntil: string | null;
+  cancelledAt: string | null;
+}
+```
+
+| Estado | Etiqueta de UI | Nota |
+|---|---|---|
+| `pending_activation` | Se activa con tu próxima factura | `activation: 'next_invoice'` |
+| `scheduled_visit` | Coordinamos la visita técnica | `activation: 'technician'` |
+| `active` | Activo | Cuenta para el MRR |
+| `cancelled` | Dado de baja | Deja de contar para el MRR |
+
+Solo las suscripciones `active` suman al ingreso recurrente. Las
+`pending_activation` se muestran en "Mis servicios" pero no se facturan todavía.
 
 ## Metrics
 
@@ -230,52 +344,88 @@ interface Metrics {
   generatedAt: string;
   periods: {
     [days in 30 | 60 | 90]: {
-      funnel: { subscribers: number; visits: number; validated: number;
-                buyers: number; orders: number; gmv: number; ispRevenue: number };
-      averageTicket: number;
+      funnel: {
+        subscribers: number;
+        visits: number;
+        validated: number;
+        converted: number;       // abonados con al menos un alta o compra
+        transactions: number;    // órdenes + altas de servicio
+        gmv: number;             // un solo tiro + lo facturado de recurrentes
+        ispRevenue: number;      // suma de los tres tramos de revenueShare
+      };
+      recurring: {
+        activeSubscriptions: number;
+        mrr: number;                    // al cierre del período
+        ispRecurringRevenue: number;    // porción del MRR que va al ISP
+        incrementalArpu: number;        // mrr / subscribers
+        planUpgrades: number;
+      };
+      averageTicket: number;            // solo órdenes con ítems físicos
       repeatRate: number;
-      savingsGenerated: number;
+      savingsGenerated: { oneOff: number; monthly: number };
       platformRevenue: number;
       gmvPerThousandSubscribers: number;
     };
   };
-  monthlySeries: { month: string; gmv: number; orders: number }[];   // 6 meses
-  topProducts: { productId: string; name: string; units: number; gmv: number }[];  // 8
+  monthlySeries: { month: string; gmv: number; mrr: number; transactions: number }[];
+  topItems: { itemId: string; name: string; kind: 'product' | 'service';
+              units: number; gmv: number }[];   // 8
   categorySales: { category: CategoryId; gmv: number; share: number }[];
 }
 ```
+
+`savingsGenerated` viene partido en dos porque el ahorro de un solo tiro y el
+ahorro mensual no son comparables. En el reporte se muestran uno al lado del otro:
+*"les ahorramos $X una vez y $Y por mes"*. El segundo es el que retiene.
 
 El generador valida los invariantes de `07-metricas-y-kpis.md` antes de escribir
 el archivo y falla ruidosamente si alguno no se cumple.
 
 ## Algoritmo de precio
 
-`computePrice(product, session | null, activePromotions, now)`. Función pura: no
-lee el reloj ni `window`.
+`computePrice(item, session | null, activePromotions, now)`. Función pura: no lee
+el reloj ni `window`. Sirve para los dos tipos de ítem; lo único que cambia es de
+dónde salen los precios base y qué significa el resultado.
 
 ```
-sin sesión → finalPrice = publicPrice
+sin sesión → finalPrice = precio público
              el precio exclusivo NUNCA se muestra ni se calcula para la vista
 
-con sesión → candidatos:
-   a) product.exclusivePrice                                    siempre
-   b) publicPrice × (1 − benefits.premiumDiscount)              si tier == 'premium'
-   c) publicPrice × (1 − promo.discount)                        por cada promo vigente
+con sesión →
+   [0] si es servicio y session.tier está en item.includedInTiers:
+          finalPrice = 0
+          appliedLabel = "Incluido en tu plan"
+          ← corta acá, no se evalúa nada más
+
+   candidatos:
+   a) precio exclusivo del ítem                                 siempre
+   b) público × (1 − benefits.premiumDiscount)                  si tier == 'premium'
+   c) público × (1 − promo.discount)                            por cada promo vigente
                                                                 que aplique por categoría
                                                                 o por tier
-   descartar todo candidato < product.supplierCost              piso duro
+   descartar todo candidato < costo del ítem                    piso duro
    finalPrice   = min(candidatos)      ← NO se acumulan: gana el mejor
    appliedLabel = nombre del candidato ganador
-   savings        = publicPrice − finalPrice
-   savingsPercent = savings / publicPrice
+   savings        = público − finalPrice
+   savingsPercent = savings / público
    installments   = finalPrice / benefits.installmentsWithoutInterest
-                    (solo si product.installmentsEligible)
+                    (solo producto físico con installmentsEligible)
 ```
+
+| | Producto físico | Servicio |
+|---|---|---|
+| Precio público | `publicPrice` | `publicMonthlyPrice` |
+| Precio exclusivo | `exclusivePrice` | `exclusiveMonthlyPrice` |
+| Piso duro | `supplierCost` | `providerMonthlyCost` |
+| `period` del resultado | `'once'` | `'monthly'` |
+| Cuotas | Sí, si `installmentsEligible` | Nunca — ya es mensual |
+| Puede dar cero | No | Sí, si viene incluido en el plan |
 
 Devuelve:
 
 ```ts
 interface PriceQuote {
+  period: 'once' | 'monthly';
   publicPrice: number;
   finalPrice: number;
   savings: number;
@@ -283,15 +433,25 @@ interface PriceQuote {
   installments: { count: number; amount: number } | null;
   appliedLabel: string;
   isExclusive: boolean;
+  isIncludedInPlan: boolean;
 }
 ```
 
+`period` es lo que decide cómo se muestra la cifra: `$ 189.000` o
+`$ 8.900 por mes`. Nunca se mezclan en una misma suma; el carrito y los totales
+llevan los dos renglones separados.
+
+El caso `isIncludedInPlan` se evalúa **antes** que todo lo demás y corta la
+cadena: no tiene sentido buscar el mejor descuento sobre algo que no se cobra.
+
 ### Ejemplos numéricos
 
-Producto de referencia: **Smart TV 50"**, categoría `entretenimiento`.
-`publicPrice` $520.000 · `exclusivePrice` $468.000 · `supplierCost` $421.200 ·
-`installmentsEligible: true`. Tenant: `premiumDiscount` 0,12 ·
-`installmentsWithoutInterest` 6.
+Tenant en los tres casos: `premiumDiscount` 0,12 · `installmentsWithoutInterest` 6.
+
+#### a) Producto físico
+
+**Smart TV 50"**, categoría `entretenimiento`. `publicPrice` $520.000 ·
+`exclusivePrice` $468.000 · `supplierCost` $421.200 · `installmentsEligible: true`.
 
 | Caso | Candidatos | `finalPrice` | Ahorro | `appliedLabel` |
 |---|---|---|---|---|
@@ -305,9 +465,54 @@ Producto de referencia: **Smart TV 50"**, categoría `entretenimiento`.
 En el último caso el candidato de $416.000 queda por debajo del `supplierCost` de
 $421.200, así que se descarta y se registra en consola solo en desarrollo. Los
 descuentos no se suman nunca: en la fila de la promo del 15% el abonado premium
-recibe 15%, no 12% + 15%.
+recibe 15%, no 12% + 15%. Cuotas del caso premium: 6 × $76.267.
 
-Cuotas del caso premium: 6 × $76.267.
+#### b) Servicio incluido en el plan premium
+
+**Pack Streaming Total**, categoría `tv`. `publicMonthlyPrice` $12.000 ·
+`exclusiveMonthlyPrice` $9.900 · `providerMonthlyCost` $7.200 ·
+`includedInTiers: ['premium']`.
+
+| Caso | `finalPrice` | Ahorro | `appliedLabel` |
+|---|---|---|---|
+| Sin sesión | $12.000/mes | — | — |
+| Fibra 100 · Fibra 300 (base) | **$9.900/mes** | $2.100/mes (17,5%) | Precio cliente |
+| Fibra 600 + TV (premium) | **$0** | $12.000/mes (100%) | Incluido en tu plan |
+
+Este es el par que hay que mostrar en la reunión uno al lado del otro: Lucía
+(Fibra 300) ve $9.900 por mes y Martín (Fibra 600 + TV) ve "Incluido en tu plan".
+El beneficio del plan premium deja de ser un porcentaje abstracto.
+
+#### c) Servicio donde gana el descuento premium
+
+**Pase Gaming**, categoría `gaming`. `publicMonthlyPrice` $7.500 ·
+`exclusiveMonthlyPrice` $6.900 · `providerMonthlyCost` $5.500 ·
+`includedInTiers: []`.
+
+| Caso | Candidatos | `finalPrice` | Ahorro | `appliedLabel` |
+|---|---|---|---|---|
+| Sin sesión | — | $7.500/mes | — | — |
+| Base | 6.900 | **$6.900/mes** | $600/mes (8,0%) | Precio cliente |
+| Premium | 6.900 · 6.600 | **$6.600/mes** | $900/mes (12,0%) | Plan premium |
+
+#### d) Upgrade del plan propio del ISP
+
+**Pasá a Fibra 300**, categoría `plan`. `fromPlanId: 'fibra-100'` ·
+`toPlanId: 'fibra-300'` · `publicMonthlyPrice` $9.000 ·
+`exclusiveMonthlyPrice` $7.500 · `providerMonthlyCost` $0.
+
+El precio es **la diferencia mensual** contra el plan actual, no el precio del
+plan nuevo. Solo lo ve un abonado cuyo `planId` sea `fibra-100`.
+
+| Caso | `finalPrice` | Ahorro | `appliedLabel` |
+|---|---|---|---|
+| Camila Prieto (Fibra 100) | **$7.500/mes más** | $1.500/mes (16,7%) | Precio cliente |
+| Lucía Ferreyra (Fibra 300) | — | — | No se muestra: ya tiene ese plan |
+
+`providerMonthlyCost` es cero porque el servicio es del propio ISP: no hay costo
+de mercadería. El precio desde la tienda es mejor que el del canal telefónico, lo
+que además empuja el autoservicio y descarga el centro de atención — un argumento
+lateral que en la reunión suele pesar más de lo esperado.
 
 ### Restricciones en el admin
 

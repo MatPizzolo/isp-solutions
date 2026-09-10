@@ -5,6 +5,50 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Reencuadre — de tienda de productos a tienda de servicios — 2026-09-09
+
+Cambio de eje del proyecto, entre el paso 2 y el paso 3. Llega antes de que
+existiera una sola línea de catálogo, modelo de datos o UI, así que cuesta
+ediciones de documentación y no reescrituras de código.
+
+Cambiado:
+
+- **Posicionamiento** (`ADR-024`): de "tienda de beneficios para abonados" a
+  **"Mi Cuenta / Mi Movistar como servicio"**. El catálogo pasa a ser
+  mayoritariamente de servicios cobrados en la factura del ISP, con los productos
+  físicos como góndola secundaria.
+- **Catálogo** (`ADR-025`): `products.json` pasa a `catalog.json`, con 18
+  servicios y 12 productos. Categorías nuevas: `tv`, `celular`, `gaming`,
+  `seguridad-digital`, `plan`.
+- **Modelo de datos**: `Product` pasa a ser la unión `CatalogItem =
+  PhysicalProduct | ServiceItem`. Entidad nueva `Subscription`. `Order` distingue
+  importes de un solo tiro de mensuales y **nunca los suma entre sí**.
+- **Precio**: `computePrice` maneja los dos tipos y resuelve el caso "incluido en
+  tu plan", que devuelve cero y corta la cadena de descuentos.
+- **Pago** (`ADR-026`): el débito en la factura del ISP pasa de "próximamente,
+  deshabilitado" a método **principal y preseleccionado**. Es la única capacidad
+  que ningún competidor puede copiar.
+- **Métricas** (`ADR-028`): el funnel desemboca en dos resultados, GMV del período
+  y MRR al cierre. Se suman servicios activos, MRR, ARPU incremental e ingreso
+  recurrente del ISP. "Compradores" pasa a "convertidos".
+- **Revenue share** (`ADR-029`): deja de ser un porcentaje único y pasa a tener
+  una entrada por tipo de ítem, porque las tres economías son distintas.
+- **Rutas** (`ADR-030`): `/producto/[slug]` pasa a `/beneficio/[slug]`, una sola
+  ruta para los dos tipos. Pantalla nueva `/mis-servicios`.
+
+Agregado:
+
+- Los upgrades del plan propio del ISP entran al catálogo como ítems destacados y
+  personalizados según el plan del abonado (`ADR-027`). Es el ítem de mayor margen
+  posible: no tiene costo de mercadería.
+
+Sin cambios:
+
+- `KICKOFF.md`, que queda como registro de la especificación original. Los tres
+  ADR que se apartan de él lo declaran en su encabezado.
+- Todo el trabajo de los pasos 1 y 2: theming, regla de hidratación, mecanismo de
+  revelación del precio, elegibilidad y toolchain.
+
 ### Paso 1 — Documentación base — 2026-09-09
 
 Agregado:

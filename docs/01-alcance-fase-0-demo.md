@@ -31,7 +31,7 @@ orden de QA y qué se recorta si falta tiempo.
 |---|---|---|---|
 | 1 | "Así lo ve tu abonado": landing con la marca del ISP y el gate de DNI | `/` | **P1** |
 | 2 | Validar DNI `30111222` → revelación del precio exclusivo | `/ingresar` → `/tienda` | **P1** |
-| 3 | Producto con ahorro en $ y %, cuotas, stock | `/producto/[slug]` | **P1** |
+| 3 | Detalle: ahorro en $ y %, y el par premium ("Incluido en tu plan") | `/beneficio/[slug]` | **P1** |
 | 4 | "Esto es tu marca, no la nuestra": cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
 | 5 | Comprar: carrito → checkout simulado → pedido confirmado | `/carrito` → `/checkout` → `/pedido/[id]` | P2 |
 | 6 | "Esto es lo que ganás": funnel e ingreso estimado del ISP | `/admin/dashboard` | P2 |
@@ -43,8 +43,14 @@ vale más que las dieciséis pantallas a medias.
 
 ## Incluido
 
-- Tienda del abonado con flujos simulados de punta a punta.
-- Panel admin del ISP con las siete secciones.
+- Tienda del abonado con flujos simulados de punta a punta, sobre un catálogo de
+  **18 servicios y 12 productos físicos** (`ADR-025`).
+- Alta de servicios cobrados en la factura del ISP, con suscripciones, estados de
+  activación y "Mis servicios".
+- Módulo de upgrade del plan propio del ISP, personalizado según el plan del
+  abonado (`ADR-027`).
+- Panel admin del ISP con las siete secciones, incluido el dashboard con métricas
+  recurrentes (MRR, ARPU incremental).
 - Datos en archivos JSON y estado en memoria y `localStorage`.
 - Theming completo desde la configuración del tenant, incluidas las ilustraciones
   de producto.
@@ -62,7 +68,10 @@ Ver también la sección 14 de `KICKOFF.md`.
 - Panel de proveedor, stock real, logística.
 - App móvil, PWA, i18n.
 - Marcas, logos, fotos o nombres de empresas reales.
-- Más de 30 productos. Más de un tenant, aunque la arquitectura lo permita.
+- Más de 30 ítems de catálogo. Más de un tenant, aunque la arquitectura lo permita.
+- Bajas o cambios de servicios contratados: en la demo solo se dan de alta.
+- Integración con el sistema de facturación del ISP. El cobro en factura se
+  confirma en pantalla y no se concilia con nada.
 - Tests E2E.
 
 ## Estado de las pantallas
@@ -75,12 +84,13 @@ Leyenda: ⬜ pendiente · 🟡 en curso · ✅ listo
 |---|---|---|
 | `/` | P1 | ⬜ |
 | `/ingresar` | P1 | ⬜ |
-| `/tienda` | P1 | ⬜ |
+| `/tienda` (con el módulo "Tu plan") | P1 | ⬜ |
 | `/tienda/[category]` | P1 | ⬜ |
-| `/producto/[slug]` | P1 | ⬜ |
+| `/beneficio/[slug]` (servicio y producto) | P1 | ⬜ |
 | `/carrito` | P2 | ⬜ |
 | `/checkout` | P2 | ⬜ |
 | `/pedido/[id]` | P2 | ⬜ |
+| `/mis-servicios` | P3 | ⬜ |
 | `/mis-pedidos` | P3 | ⬜ |
 | `/como-funciona` | P3 | ⬜ |
 
@@ -110,9 +120,13 @@ Leyenda: ⬜ pendiente · 🟡 en curso · ✅ listo
 - [ ] Con `NEXT_PUBLIC_TENANT=zonda`, toda la tienda y el admin muestran la marca del tenant; cambiar dos colores y el `fontPreset` en `tenant.json` retematiza todo, incluidas las imágenes de producto, sin tocar código.
 - [ ] Los 6 casos de DNI de prueba producen exactamente los 4 estados esperados con sus mensajes.
 - [ ] Sin sesión, ningún precio exclusivo es visible. Con sesión, el precio y el ahorro se muestran; premium muestra descuento mayor.
-- [ ] Un abonado puede completar el flujo entero: validar → elegir 2 productos → carrito → checkout → pedido confirmado → verlo en "Mis pedidos" → verlo en `/admin/pedidos`.
-- [ ] En el admin: desactivar un producto lo oculta de la tienda; cambiar un precio exclusivo se refleja en la tienda; cambiar colores en `/admin/marca` cambia el preview en vivo.
-- [ ] El dashboard muestra el funnel completo con cifras coherentes con `metrics.json` y el ingreso estimado del ISP.
+- [ ] El mismo servicio muestra un precio mensual para un abonado base y "Incluido en tu plan" para uno premium.
+- [ ] Cada abonado ve **solo** el upgrade de plan que le corresponde; quien ya tiene el plan más alto no ve el módulo.
+- [ ] Un abonado puede contratar un servicio en dos pasos, sin dirección ni datos de pago, y verlo en "Mis servicios" con su fecha de activación.
+- [ ] Un abonado puede completar el flujo entero: validar → elegir un producto y un servicio → carrito → checkout → pedido confirmado → verlo en "Mis pedidos" y "Mis servicios" → verlo en `/admin/pedidos`.
+- [ ] En un carrito mixto, el importe de un solo tiro y el mensual se muestran separados y nunca sumados.
+- [ ] En el admin: desactivar un ítem lo oculta de la tienda; cambiar un precio exclusivo se refleja en la tienda; cambiar colores en `/admin/marca` cambia el preview en vivo.
+- [ ] El dashboard muestra el funnel completo con cifras coherentes con `metrics.json`, más MRR, ARPU incremental e ingreso recurrente del ISP.
 - [ ] `/admin/reportes` se imprime a PDF de forma legible.
 - [ ] Todas las pantallas funcionan a 375px sin scroll horizontal.
 - [ ] "Restablecer demo" vuelve todo al estado inicial.

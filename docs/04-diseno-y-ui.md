@@ -37,12 +37,16 @@ algo merece ser una card y cuándo no.
 
 _Pendiente (paso 5)._ Wireframes ASCII de:
 
-- Landing sin sesión y con sesión
+- Landing sin sesión y con sesión, con las categorías de servicio arriba
+  (TV · Celular · Gaming)
 - `/ingresar` en sus cuatro estados
-- `/producto/[slug]`
-- `/carrito`
-- `/checkout`
-- `/pedido/[id]`
+- `/tienda` con el módulo "Tu plan" personalizado, y sin él para quien ya tiene el
+  plan más alto
+- `/beneficio/[slug]` — servicio, producto e "incluido en tu plan"
+- `/carrito` con los dos totales separados: "Pagás hoy" y "Se suma a tu factura"
+- `/checkout` en sus dos formas: solo servicios (dos pasos) y con físicos (tres)
+- `/pedido/[id]` con timeline de entrega y sin ella
+- `/mis-servicios`
 - `/admin/dashboard`
 - `/admin/catalogo`
 - `/admin/marca`

@@ -1,8 +1,13 @@
 # Nexo Beneficios — demo Fase 0
 
-Demo de una plataforma white-label de beneficios para ISPs: cada operador tiene su
-propia tienda, con su marca, donde el abonado valida su DNI o número de cliente y
-accede a precios exclusivos por ser cliente.
+Un "Mi Cuenta / Mi Movistar" como servicio, bajo marca blanca, para ISPs y
+cableoperadores chicos y medianos: el abonado valida su DNI o número de cliente,
+ve su plan y suma servicios —TV y streaming, celular, gaming, seguridad digital,
+mejoras de su propio Internet— cobrados en la factura que ya paga. Hay además una
+góndola de productos para el hogar, pero los servicios son el eje.
+
+Todo con la marca del operador, sin que tenga que desarrollar tecnología ni
+mantener stock.
 
 Esta es la **Fase 0**: una demo navegable con datos mock de un ISP ficticio,
 **Zonda Fibra**. No hay backend, ni base de datos, ni pagos, ni autenticación
@@ -34,8 +39,8 @@ Abrir http://localhost:3000
 | DNI | Nº cliente | Qué muestra |
 |---|---|---|
 | `30111222` | 104588 | Abonado activo — el flujo principal de la demo |
-| `27888999` | 98231 | Plan premium — descuento adicional |
-| `33444555` | 121904 | Plan base |
+| `27888999` | 98231 | Plan premium — servicios incluidos sin cargo |
+| `33444555` | 121904 | Plan base — ve el módulo de upgrade de plan |
 | `20555666` | 77120 | Cuenta suspendida — beneficios bloqueados |
 | `18999000` | 45012 | Servicio dado de baja |
 | `35000111` | — | DNI que no existe |

@@ -2,8 +2,11 @@
 
 ## Qué es este proyecto
 
-Plataforma white-label de beneficios para ISPs: cada ISP tiene su tienda, con su
-marca, donde el abonado valida su DNI y accede a precios exclusivos.
+Un **"Mi Cuenta / Mi Movistar" como servicio**, bajo marca blanca, para ISPs
+chicos y medianos: el abonado valida su DNI, ve su plan y suma servicios —TV,
+celular, gaming, seguridad digital, mejoras de su propio Internet— cobrados en la
+factura que ya paga. Hay además una góndola de productos físicos, pero **los
+servicios son el eje** (`ADR-024`).
 Fase 0 = demo navegable con datos mock del tenant ficticio **Zonda Fibra**.
 Sin backend, sin base de datos, sin pagos y sin auth reales.
 
@@ -48,10 +51,21 @@ pnpm mock:generate   # regenera orders.json y metrics.json (seed fija)
 
 ## Recetas
 
-**Agregar un producto.** Sumar la entrada en `src/data/products.json` con id
-`{prefijo de categoría}-{3 dígitos}` y SKU `NX-…`. Respetar las reglas de precio:
-`exclusivePrice` entre 6% y 14% bajo `publicPrice`, y `supplierCost` entre 8% y
-12% bajo `exclusivePrice`. Dejar `image: null` para que use `ProductPlaceholder`.
+**Agregar un producto físico.** Sumar la entrada en `src/data/catalog.json` con
+`kind: 'product'`, id `{prefijo de categoría}-{3 dígitos}` y SKU `NX-…`. Reglas de
+precio: `exclusivePrice` entre 6% y 14% bajo `publicPrice`, y `supplierCost` entre
+8% y 12% bajo `exclusivePrice`. Dejar `image: null` para que use
+`ProductPlaceholder`.
+
+**Agregar un servicio.** Igual, con `kind: 'service'` y precios mensuales
+(`publicMonthlyPrice`, `exclusiveMonthlyPrice`, `providerMonthlyCost`). Definir
+`commitmentMonths`, `activation` y, si corresponde, `includedInTiers` para que
+venga sin cargo en algún plan. Sin stock ni cuotas: un servicio ya es mensual.
+
+**Agregar un upgrade de plan.** Un servicio de categoría `plan` con `fromPlanId` y
+`toPlanId` apuntando a `tenant.plans`, `providerMonthlyCost: 0`, y el precio
+expresado como **la diferencia mensual** contra el plan actual — no el precio del
+plan nuevo.
 
 **Agregar un tenant.** Crear `src/tenants/<id>/` con `tenant.json`,
 `subscribers.json` y `promotions.json`; correr `pnpm mock:generate`; registrar el
@@ -66,9 +80,9 @@ deriva de las fechas: no se guarda.
 
 | DNI | Nº cliente | Nombre | Plan | Resultado |
 |---|---|---|---|---|
-| `30111222` | 104588 | Lucía Ferreyra | Fibra 300 | Activo — flujo feliz |
-| `27888999` | 98231 | Martín Solari | Fibra 600 + TV | Activo premium — descuento 12% |
-| `33444555` | 121904 | Camila Prieto | Fibra 100 | Activo base |
+| `30111222` | 104588 | Lucía Ferreyra | Fibra 300 | Activo — flujo feliz. Ve el pase a Fibra 600 + TV |
+| `27888999` | 98231 | Martín Solari | Fibra 600 + TV | Premium — descuento 12% y servicios "Incluido en tu plan". Sin módulo de upgrade |
+| `33444555` | 121904 | Camila Prieto | Fibra 100 | Base — ve el pase a Fibra 300 |
 | `20555666` | 77120 | Roberto Ibáñez | Fibra 300 | Suspendido |
 | `18999000` | 45012 | Elena Carrizo | Fibra 100 | Inactivo |
 | `35000111` | — | — | — | No encontrado |
@@ -85,7 +99,7 @@ Camino de QA obligatorio antes de cada commit que toque UI.
 |---|---|---|---|
 | 1 | Landing con la marca del ISP y el gate de DNI | `/` | **P1** |
 | 2 | Validar `30111222` → revelación del precio | `/ingresar` → `/tienda` | **P1** |
-| 3 | Producto con ahorro en $ y %, cuotas, stock | `/producto/[slug]` | **P1** |
+| 3 | Detalle: ahorro en $ y %, y el par premium ("Incluido en tu plan") | `/beneficio/[slug]` | **P1** |
 | 4 | Cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
 | 5 | Carrito → checkout simulado → pedido confirmado | `/carrito` → `/checkout` → `/pedido/[id]` | P2 |
 | 6 | Funnel e ingreso estimado del ISP | `/admin/dashboard` | P2 |
@@ -111,11 +125,16 @@ Una tarea no está terminada hasta que:
 - **Hecho:** paso 1 — documentación base. Paso 2 — Next.js 16.3.4 + React 19 +
   Tailwind 4 + TypeScript estricto, con Vitest, Prettier, tsx y Playwright.
   Todo verificado: typecheck, lint, test, format y build limpios.
+- **Reencuadre (ADR-024 a ADR-030):** el proyecto pasó de tienda de productos
+  físicos a tienda de servicios sobre la factura del ISP. Los docs ya están
+  alineados; `KICKOFF.md` queda intacto como especificación original.
 - **Sigue:** paso 3 — tenant, theming y `/dev/tokens`.
-- **A tener en cuenta:** por ADR-015 el generador produce ~1.700 órdenes, así que
-  `/admin/pedidos` necesita paginación desde el principio. El theming usa
-  `@theme inline` (ADR-011): las variables inyectadas son `--brand-*` y las claves
-  del tema `--color-*`; no pueden llamarse igual.
+- **A tener en cuenta:**
+  - Importes de un solo tiro y mensuales **nunca se suman entre sí**.
+  - El generador produce ~2.400 transacciones (ADR-015), así que `/admin/pedidos`
+    lleva paginación desde el principio.
+  - El theming usa `@theme inline` (ADR-011): las variables inyectadas son
+    `--brand-*` y las claves del tema `--color-*`; no pueden llamarse igual.
 
 <!-- BEGIN:nextjs-agent-rules -->
 

@@ -115,7 +115,7 @@ layout shift y sin warnings de hidratación.
 ## ADR-007 — El catálogo es de la plataforma; los datos de negocio son del tenant
 **Fecha:** 2026-09-09 · **Estado:** aceptada
 
-**Decisión.** `products.json` vive en `src/data/` y es compartido. Abonados,
+**Decisión.** `catalog.json` vive en `src/data/` y es compartido. Abonados,
 promociones, órdenes y métricas viven en `src/tenants/<id>/`.
 
 **Consecuencias.** El SKU lleva prefijo de plataforma (`NX-`) y no del ISP. Sumar
@@ -284,16 +284,23 @@ grande.
 
 **Consecuencias.**
 
-- `scripts/generate-mock-data.ts` genera aproximadamente **1.700 órdenes** en los
-  últimos 90 días, no 60. El archivo resultante ronda 1 MB.
-- Funnel de 90 días: 58.000 abonados → ~6.960 visitas (12%) → ~3.480 validados
-  (6%) → ~1.450 compradores (2,5%) → ~1.700 órdenes → GMV ≈ $374M → ingreso ISP
-  ≈ $11,2M con `revenueShare.isp` de 0,03.
-- Se mantiene el ticket promedio entre $180.000 y $260.000 que pide la sección 8.4.
-- `/admin/pedidos` necesita **paginación** desde el principio: una tabla de 1.700
-  filas sin paginar no es usable ni rápida. Se documenta en el plan de diseño.
-- Se mantienen todos los invariantes de `07-metricas-y-kpis.md`, incluida la
-  validación `GMV = Σ órdenes no canceladas` que corre al final del generador.
+> **Actualizado el 2026-09-09 por `ADR-024`.** Las cifras de abajo ya reflejan el
+> reencuadre a servicios; la decisión de fondo —manda el funnel, no el número
+> arbitrario de órdenes— no cambió.
+
+- `scripts/generate-mock-data.ts` genera aproximadamente **2.400 transacciones**
+  en los últimos 90 días, no 60: unas 520 órdenes con ítems físicos y el resto
+  altas de servicio y upgrades de plan.
+- Las cifras completas del período de referencia están en `07-metricas-y-kpis.md`,
+  que es la única fuente. En resumen: 58.000 abonados → 6.960 visitas → 3.480
+  validados → 1.450 convertidos → ~2.400 transacciones → GMV ≈ $147M y MRR al
+  cierre ≈ $18,1M por mes.
+- Se mantiene el ticket promedio de producto físico entre $180.000 y $260.000 que
+  pide la sección 8.4.
+- `/admin/pedidos` necesita **paginación** desde el principio: una tabla de miles
+  de filas sin paginar no es usable ni rápida. Se documenta en el plan de diseño.
+- Se mantienen todos los invariantes de `07-metricas-y-kpis.md`, que el generador
+  valida antes de escribir los archivos.
 
 ---
 
@@ -461,3 +468,213 @@ ejecución vacía. El test fija además el espacio duro (U+00A0) que el locale
 `es-AR` mete entre el `$` y la cifra: si una versión de Node o de ICU lo
 cambiara, se rompería el formato de precios en toda la app y este es el único
 lugar donde saltaría.
+
+---
+
+## ADR-024 — Reencuadre: tienda de servicios y beneficios, no de productos físicos
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Reemplaza el eje de `KICKOFF.md` §1 y §8.2**
+
+**Contexto.** El kickoff describe el producto como una tienda de productos físicos
+con elegibilidad por DNI. Una tienda de productos físicos compite con MercadoLibre
+y pierde: mismo producto, mejor logística del otro lado, y el único diferencial es
+un 6% a 14% de descuento.
+
+El encuadre correcto es **"Mi Cuenta / Mi Movistar como servicio"**: la tienda es
+el espacio del abonado en su ISP, donde ve su plan, sus beneficios y los servicios
+que puede sumar. Ahí el ISP no compite con nadie, porque **nadie más puede cobrarle
+a ese abonado en la factura que ya paga todos los meses**.
+
+**Decisión.** El catálogo pasa a ser mayoritariamente de **servicios** —TV y
+streaming, celular, gaming, seguridad digital y upgrades del propio plan— con los
+productos físicos como góndola secundaria. La landing abre con las categorías de
+servicio.
+
+**Alternativas descartadas.** Mantener el eje de productos físicos (compite de
+frente con el e-commerce generalista). Tienda de servicios pura, sin hardware
+(pitch más filoso, pero deja sin usar todo el flujo de carrito, envío y pedido que
+ocupa las pantallas P2 del guion de demo).
+
+**Consecuencias.**
+
+- **La conversión pasa a ser creíble.** Pedirle a un abonado que gaste $220.000 de
+  una vez es una decisión de compra; pedirle que sume $6.000 por mes a una factura
+  que ya paga es casi un clic. La hipótesis de 2% a 5% de compradores del kickoff
+  era dudosa para hardware y es razonable para servicios — y esa hipótesis es la
+  que sostiene el dashboard que responde "¿qué gano?".
+- **El ingreso pasa a ser recurrente.** Todo el modelo de métricas medía GMV, que
+  es de un solo tiro. Ver `ADR-028`.
+- **Baja el riesgo operativo del piloto.** Un servicio no tiene stock, ni envío, ni
+  devoluciones, ni logística inversa. Es la objeción más grande que el dueño del
+  ISP podía poner sobre la mesa, y desaparece del argumento principal.
+- **Riesgo que queda del otro lado:** conseguir acuerdos con proveedores de
+  streaming o de telefonía es bastante más difícil que comprarle routers a un
+  mayorista. En la demo son marcas ficticias y no importa; en la Fase 1 es el
+  camino crítico.
+- `KICKOFF.md` **no se modifica**: queda como registro de la especificación
+  original, tal como fue escrita. Todo el reencuadre vive en `docs/` y su traza
+  está acá. Cada ADR que se aparta del kickoff lo dice en su encabezado, así que
+  la diferencia entre "lo que se pidió" y "lo que se decidió después" es
+  auditable. Los ADR que se apartan son `ADR-024`, `ADR-026` y `ADR-029`.
+
+---
+
+## ADR-025 — Composición del catálogo: 18 servicios y 12 productos
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** La sección 14 del kickoff topea el catálogo en 30 ítems. Con dos
+tipos de ítem hay que repartirlos.
+
+**Decisión.** 18 servicios y 12 productos físicos. Categorías:
+
+| Tipo | Categoría | id | Cantidad |
+|---|---|---|---|
+| Servicio | TV y streaming | `tv` | 5 |
+| Servicio | Celular | `celular` | 3 |
+| Servicio | Gaming | `gaming` | 3 |
+| Servicio | Seguridad digital | `seguridad-digital` | 3 |
+| Servicio | Tu plan de Internet | `plan` | 4 |
+| Producto | Conectividad | `conectividad` | 3 |
+| Producto | Seguridad del hogar | `seguridad` | 3 |
+| Producto | Entretenimiento | `entretenimiento` | 2 |
+| Producto | Tecnología | `tecnologia` | 2 |
+| Producto | Hogar conectado | `hogar` | 2 |
+
+La landing abre con **TV · Celular · Gaming**, que es el orden del boceto de MVP.
+Los productos físicos quedan como segunda góndola, más abajo.
+
+**Consecuencias.** Los dos ítems sin stock y el ítem inactivo que pide el kickoff
+para probar esos estados salen del bloque de productos físicos, que es donde esos
+estados existen. Un servicio no tiene stock.
+
+---
+
+## ADR-026 — El débito en la factura del ISP es el método de pago principal
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Invierte `KICKOFF.md` §9**
+
+**Contexto.** El kickoff lista tres métodos de pago en el checkout y marca
+"Débito en la factura de {tenant.name}" como *próximamente*, deshabilitado.
+
+Esa línea gris es la única capacidad que ningún competidor puede copiar, y estaba
+apagada.
+
+**Decisión.** El débito en factura pasa a ser el método **principal y
+preseleccionado**. Mercado Pago y tarjeta quedan como alternativas. Para los
+servicios es además el único método: un servicio recurrente se cobra en la factura.
+
+**Consecuencias.**
+
+- Elimina la dependencia de la pasarela de pagos para el piloto de servicios. No
+  hace falta integrar Mercado Pago para facturar un servicio: hace falta un
+  concepto más en la factura que el ISP ya emite todos los meses.
+- El checkout de un servicio no pide dirección de entrega ni datos de pago. Es
+  confirmar y listo, lo que lo vuelve el flujo más corto y más demostrable.
+- En la Fase 1 aparece un punto de corte nuevo: la conciliación con el sistema de
+  facturación del ISP. Es más simple que una pasarela, pero es integración real.
+
+---
+
+## ADR-027 — Los planes del ISP entran al catálogo como ítems destacados
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El ítem de mayor margen posible no es un router: es que un abonado
+de Fibra 100 pase a Fibra 300. Costo de mercadería cero, infraestructura ya
+instalada, cobranza ya montada.
+
+**Decisión.** Los upgrades de plan del propio ISP entran al catálogo como
+servicios de categoría `plan`, con un módulo propio y personalizado en la tienda:
+*"Tenés Fibra 100 — pasá a Fibra 300 por $X más por mes"*.
+
+Cada upgrade declara `fromPlanId` y `toPlanId`, así que la tienda le muestra a
+cada abonado **solo el upgrade que le corresponde según su plan actual**. Quien ya
+está en el plan más alto no ve el módulo.
+
+**Alternativas descartadas.** Meterlos como una categoría más sin tratamiento
+especial (desperdicia el argumento). Dejarlos afuera (deja el catálogo solo con
+beneficios de terceros y saca de la mesa el argumento económico más fuerte).
+
+**Consecuencias.**
+
+- Convierte la tienda de "un beneficio para tus abonados" en "un canal de venta
+  sobre tu propia base". Es la diferencia entre un costo y una inversión.
+- Es también el mejor momento de personalización de la demo: dos abonados de
+  prueba con planes distintos ven módulos distintos. Refuerza el "Mi Movistar".
+- El reparto de ingresos se invierte para este tipo de ítem: el servicio es del
+  ISP, así que el ISP se queda con casi todo y la plataforma cobra una comisión de
+  canal. Ver `ADR-029`.
+
+---
+
+## ADR-028 — Métricas recurrentes junto al GMV
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El funnel oficial termina en GMV e ingreso del ISP, que son medidas
+de un negocio transaccional. Con los servicios liderando, el número que importa es
+el recurrente.
+
+**Decisión.** El funnel se mantiene, pero desemboca en **dos resultados**: GMV del
+período (un solo tiro más lo facturado de recurrentes) e **ingreso recurrente
+mensual** al cierre del período. Se suman como métricas oficiales: servicios
+activos, MRR, ARPU incremental por abonado e ingreso recurrente del ISP.
+
+**Consecuencias.** El dashboard muestra menos GMV que en el modelo anterior y
+**más ingreso para el ISP**, porque el reparto sobre servicios es mucho más
+favorable que sobre reventa de hardware. Es exactamente la conversación que
+conviene tener en la reunión: menos volumen, más margen, y que vuelve todos los
+meses.
+
+---
+
+## ADR-029 — El reparto de ingresos depende del tipo de ítem
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Cambia la forma de `tenant.json`**
+
+**Contexto.** El kickoff define `revenueShare` como dos números fijos (`isp` 0,03
+y `platform` 0,05). Eso solo tiene sentido para reventa de hardware, donde el
+margen total ronda el 10%. Un servicio recurrente tiene un margen mucho mayor, y
+un upgrade del plan propio del ISP no tiene costo de mercadería en absoluto.
+
+Un mismo porcentaje para los tres casos daría cifras sin sentido.
+
+**Decisión.** `revenueShare` pasa a tener una entrada por tipo de ítem:
+
+```json
+"revenueShare": {
+  "products":     { "isp": 0.03, "platform": 0.05 },
+  "services":     { "isp": 0.25, "platform": 0.15 },
+  "planUpgrades": { "isp": 0.90, "platform": 0.10 }
+}
+```
+
+**Hipótesis de trabajo, no números negociados.** El reparto real se acuerda con
+cada ISP; estos valores existen para que el dashboard muestre cifras coherentes.
+
+**Consecuencias.**
+
+- En productos físicos la plataforma gana más que el ISP, porque asume el catálogo
+  y el fulfillment. En servicios se invierte, porque el ISP pone la relación y la
+  cobranza. En upgrades de plan la plataforma cobra una comisión de canal sobre un
+  servicio que es enteramente del ISP.
+- Se desvía de la forma de `tenant.json` que fija `KICKOFF.md` §4. Como el kickoff
+  queda intacto (`ADR-024`), esta es la única constancia del cambio.
+- `metrics.ts` y el dashboard calculan el ingreso del ISP sumando los tres tramos,
+  no multiplicando el GMV por un número.
+
+---
+
+## ADR-030 — La ruta de detalle es `/beneficio/[slug]`
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El kickoff define `/producto/[slug]`. Con el catálogo unificado, esa
+URL le queda mal a un pack de streaming o a un upgrade de plan.
+
+**Decisión.** Una sola ruta de detalle para los dos tipos:
+`/beneficio/[slug]`. La vista se adapta según `kind`.
+
+**Alternativas descartadas.** `/producto/[slug]` más `/servicio/[slug]`: duplica
+la ruta, el `generateStaticParams` y el layout para ganar poco, y obliga a saber
+el tipo antes de armar un link. `/item/[slug]`: las rutas las ve el abonado y
+tienen que estar en castellano.
+
+**Consecuencias.** La fila 3 del guion de demo pasa a `/beneficio/[slug]`. El
+componente de detalle discrimina por `kind`: el producto muestra stock, envío y
+cuotas; el servicio muestra permanencia, cuándo se activa y desde qué factura se
+cobra.

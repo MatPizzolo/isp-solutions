@@ -24,12 +24,20 @@ caso de éxito.
 | Frente | Qué se hace |
 |---|---|
 | Elegibilidad | `src/lib/eligibility.ts` deja de leer `subscribers.json` y pasa a consultar la API o el archivo de abonados elegibles del ISP. Es el primer reemplazo |
-| Pagos | Mercado Pago Checkout Pro reemplaza el checkout simulado |
-| Órdenes | Persistencia real: las órdenes dejan de vivir en `localStorage` |
-| Catálogo | ~30 productos con proveedor real, costos y plazos de entrega reales |
+| **Facturación** | Alta del concepto en el sistema de facturación del ISP. **Es el segundo reemplazo y el camino crítico**: sin esto no hay servicios |
+| Catálogo de servicios | Acuerdos con proveedores de TV, celular, gaming y seguridad. Es lo más difícil del negocio real |
+| Upgrades de plan | Integración con el aprovisionamiento del ISP para que un cambio de plan se ejecute solo |
+| Órdenes y suscripciones | Persistencia real: dejan de vivir en `localStorage` |
+| Pagos | Mercado Pago Checkout Pro, **solo para productos físicos**. Un piloto de servicios puros no lo necesita |
+| Catálogo de hardware | ~12 productos con proveedor real, costos y plazos de entrega |
 | Dashboard | Los mismos gráficos, alimentados por datos reales |
-| Revenue share | Liquidación mensual al ISP sobre el GMV de su tienda |
-| Logística | Acuerdo de fulfillment con el proveedor; el ISP no toca stock |
+| Revenue share | Liquidación mensual al ISP, con reparto distinto por tipo de ítem |
+| Logística | Acuerdo de fulfillment para el hardware; el ISP no toca stock |
+
+**Se puede arrancar solo con servicios.** No hace falta pasarela de pagos, ni
+proveedor de hardware, ni logística: hace falta la elegibilidad, un acuerdo de
+servicios y un concepto más en la factura. Es el camino más corto a un piloto que
+factura, y conviene proponerlo así en la reunión.
 
 **Se termina cuando** hay 90 días de operación medidos con el funnel de
 `07-metricas-y-kpis.md` y una decisión fundamentada de escalar o no.
@@ -58,7 +66,8 @@ caso de éxito.
 
 | Decisión | Se toma con los datos de |
 |---|---|
-| ¿Escalamos a más ISPs? | Fase 1: conversión de validados a compradores y GMV por cada 1.000 abonados |
-| ¿Qué categorías amplío? | Fase 1: ventas por categoría y top de productos |
+| ¿Escalamos a más ISPs? | Fase 1: conversión de validados a convertidos y **ARPU incremental** |
+| ¿Qué categorías amplío? | Fase 1: ventas por categoría y top de ítems |
+| ¿Servicios o hardware? | Fase 1: qué proporción del ingreso del ISP viene de cada uno |
 | ¿Negocio directo con proveedores? | Fase 2: volumen agregado de la red |
 | ¿Importo? | Fase 3: rotación sostenida por categoría durante al menos dos trimestres |
