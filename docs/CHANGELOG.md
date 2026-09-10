@@ -5,6 +5,52 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Paso 4 — Datos mock y lógica — 2026-09-10
+
+Agregado:
+
+- `src/data/catalog.json`: 30 ítems, 18 servicios y 12 productos, con marcas
+  ficticias. Seis destacados, dos sin stock y uno inactivo, todos en el bloque
+  físico, que es donde esos estados existen.
+- `src/tenants/zonda/subscribers.json` con los cinco abonados de prueba.
+- `src/tenants/zonda/promotions.json`: banner vigente, descuento premium en
+  entretenimiento vigente y una promo vencida.
+- `scripts/generate-mock-data.ts` → `orders.json`, `subscriptions.json` y
+  `metrics.json`. Seed fija y **determinismo verificado**: dos corridas dan el
+  mismo hash. Valida los invariantes antes de escribir y sale con error si alguno
+  falla.
+- `src/lib/`: `catalog`, `eligibility`, `pricing`, `promotions`, `orders`,
+  `metrics` y ampliación de `format`. Todas puras, sin `window` ni reloj interno.
+- 42 tests de Vitest sobre `pricing` y `eligibility`, incluidos todos los ejemplos
+  numéricos de `03-modelo-de-datos.md`.
+
+Cambiado:
+
+- `CategorySales` ahora trae **los dos cortes**, GMV y MRR. En GMV un televisor de
+  $520.000 pesa como veintiocho meses de un servicio de $9.900, así que el
+  hardware domina ese gráfico por construcción. Con un solo corte, la pantalla que
+  responde "¿qué gano?" contaría la historia al revés.
+- La mezcla del generador se ajustó dos veces contra los datos que producía. Con
+  la primera versión, el 39% de los convertidos compraba hardware de $226.000 en
+  90 días: no es creíble para una góndola secundaria, y aplastaba a los servicios
+  en el GMV. Ahora es cerca del 13%, y los servicios por convertido quedaron en
+  1,50, dentro de la banda de la hipótesis.
+- **Las cifras de referencia de `07-metricas-y-kpis.md` y los escenarios de
+  `00-vision-y-modelo-de-negocio.md` se reescribieron contra la salida real del
+  generador.** Eran estimaciones mías y no coincidían. De acá en adelante, si el
+  generador cambia, el documento se actualiza contra su salida y no al revés.
+
+Verificado:
+
+- Funnel de 90 días: 58.000 → 6.812 visitas → 3.406 validados → 1.419 convertidos
+  → 1.963 transacciones. GMV $67,5M y MRR $15,7M por mes.
+- **El ingreso del ISP ($6,9M) supera al de la plataforma ($4,1M)** aunque el
+  hardware sea el 82% del volumen, que es exactamente el efecto que busca
+  `ADR-029`.
+- Por MRR, la categoría número uno son los upgrades del propio plan del ISP (30%),
+  seguidos de TV (29%) y celular (18%).
+- `typecheck`, `lint`, `test`, `format:check` y `build` limpios.
+
 ### Paso 3 — Tenant y theming — 2026-09-09
 
 Agregado:

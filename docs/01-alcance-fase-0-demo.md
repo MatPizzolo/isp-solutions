@@ -67,7 +67,7 @@ cualquier tienda tiene (`ADR-032`).
 - Theming completo desde la configuración del tenant, incluidas las ilustraciones
   de producto.
 - Modo demo con badge, DNIs de prueba a mano y "Restablecer demo".
-- Tests unitarios de `pricing.ts` y `eligibility.ts`.
+- Tests unitarios de `pricing.ts` y `eligibility.ts` (42 casos).
 
 ## Excluido
 

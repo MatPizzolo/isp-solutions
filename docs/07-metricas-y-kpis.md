@@ -140,28 +140,56 @@ invariantes.
 | | |
 |---|---|
 | Abonados | 58.000 |
-| Visitas | 6.960 (12%) |
-| Validados | 3.480 (6%) |
-| Convertidos | 1.450 (2,5%) |
-| Transacciones | ~2.400 |
-| Suscripciones activas al cierre | ~1.500 servicios + ~380 upgrades de plan |
-| Órdenes con ítems físicos | ~520, ticket promedio $220.000 |
-| GMV del período | ~$147M |
-| **MRR al cierre** | **~$18,1M por mes** |
-| ARPU incremental | ~$311 por abonado por mes |
-| Ingreso del ISP en el período | ~$17,7M |
-| **Ingreso recurrente del ISP** | **~$7,9M por mes** |
-| Del cual, upgrades de plan | ~$4,6M por mes, sin comisión de la plataforma |
+| Visitas | 6.812 (11,7%) |
+| Validados | 3.406 (5,9%) |
+| Convertidos | 1.419 (2,4%) |
+| Transacciones | 1.963 |
+| Suscripciones activas al cierre | 2.123 — 1.790 servicios y 333 upgrades de plan |
+| Órdenes con ítems físicos | ~190, ticket promedio $222.371 |
+| GMV del período | $67,5M |
+| **MRR al cierre** | **$15,7M por mes** |
+| ARPU incremental | $271 por abonado por mes |
+| Tasa de recompra | 31,4% |
+| Ahorro generado | $6,1M único y $3,7M por mes |
+| Ingreso del ISP en el período | $6,9M |
+| **Ingreso recurrente del ISP** | **$6,9M por mes** |
+| Ingreso de la plataforma en el período | $4,1M |
 
-Comparado con un modelo de solo productos físicos, el GMV es bastante menor y **el
-ingreso del ISP es mayor**, porque el reparto sobre servicios es más favorable que
-sobre reventa de hardware y porque los upgrades de su propio plan quedan enteros
-para él (`ADR-029`). Esa es la conversación que conviene tener en la reunión:
-menos volumen, más margen, y que vuelve todos los meses.
+Todas estas cifras las produce `scripts/generate-mock-data.ts` con seed fija y
+pasan los invariantes de arriba. Si el generador cambia, **este documento se
+actualiza contra su salida**, no al revés.
 
-El renglón de upgrades merece decirse en voz alta: **de los $7,9M mensuales que le
-quedan al ISP, $4,6M salen de vender su propio plan y no pagan comisión.** El
-módulo que los genera es parte de la plataforma.
+### Cómo se compone el GMV, y por qué no es la métrica que importa
+
+| | En 90 días | Reparto |
+|---|---|---|
+| Producto físico | $55,6M (82%) | ISP 3% · plataforma 5% |
+| Servicios facturados | $8,8M (13%) | ISP 25% · plataforma 15% |
+| Upgrades de plan facturados | $3,0M (5%) | **ISP 100% · plataforma 0%** |
+
+El hardware domina el GMV **por construcción**: un televisor de $520.000 pesa lo
+mismo que veintiocho meses de un servicio de $9.900. Pero de ese 82% del volumen
+el ISP se lleva apenas el 3%, mientras que del 18% restante se lleva entre un
+cuarto y todo.
+
+Por eso el ingreso del ISP en el período ($6,9M) **supera al de la plataforma**
+($4,1M) aunque el hardware sea cuatro quintos del volumen, y por eso un dashboard
+que solo midiera GMV contaría la historia al revés.
+
+El corte por categoría se muestra en las dos vistas por la misma razón:
+
+| Por GMV | Por MRR |
+|---|---|
+| entretenimiento 25% · hogar 19% · tecnología 13% | **plan 30%** · tv 29% · celular 18% |
+
+La vista de GMV está encabezada por un televisor. La de MRR, por los upgrades del
+propio plan del ISP. La segunda es el negocio.
+
+### El renglón que conviene decir en voz alta
+
+**De los $6,9M mensuales que le quedan al ISP, buena parte sale de vender su
+propio plan, y esa parte no paga ninguna comisión.** El módulo que los genera es
+parte de la plataforma que le damos.
 
 ## Qué NO se mide en la Fase 0
 

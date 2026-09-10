@@ -179,25 +179,26 @@ negociar con proveedores sin base instalada es negociar sin nada que ofrecer.
 > de la Fase 1.
 
 Supuestos comunes, extrapolados del período de referencia de
-`07-metricas-y-kpis.md`: ISP promedio de 20.000 abonados; MRR de $312 por abonado
-por mes en régimen; margen de la plataforma de **$68 por abonado por mes** entre
+`07-metricas-y-kpis.md`: ISP promedio de 20.000 abonados; MRR de $271 por abonado
+por mes en régimen; margen de la plataforma de **$45 por abonado por mes** entre
 servicios y hardware —los upgrades de plan no aportan nada, por `ADR-029`—; fee
 SaaS de $400.000 por ISP por mes.
 
 | Escenario | ISPs | Abonados | MRR de la red | Margen anual | SaaS anual | Ingreso plataforma |
 |---|---|---|---|---|---|---|
-| Red inicial | 10 | 200.000 | $62M/mes | $163M | $48M | **$211M/año** |
-| Red media | 50 | 1.000.000 | $312M/mes | $816M | $240M | **$1.056M/año** |
-| Red consolidada | 100 | 2.000.000 | $624M/mes | $1.632M | $480M | **$2.112M/año** |
+| Red inicial | 10 | 200.000 | $54M/mes | $108M | $48M | **$156M/año** |
+| Red media | 50 | 1.000.000 | $271M/mes | $540M | $240M | **$780M/año** |
+| Red consolidada | 100 | 2.000.000 | $542M/mes | $1.080M | $480M | **$1.560M/año** |
 
 La columna que importa no es la última, es **el MRR de la red**: es la base sobre
 la que se negocia con proveedores y la que le da previsibilidad al negocio. Un
 ingreso recurrente de esa magnitud vale bastante más que un GMV transaccional
 equivalente.
 
-Notar que el fee SaaS pesa entre un 20% y un 25% del total. No es un detalle
+Notar que el fee SaaS pesa cerca de un tercio del total. No es un detalle
 administrativo: es el único ingreso que no depende de que el operador venda, y es
-lo que permite no tener que cobrarle comisión sobre lo suyo.
+exactamente lo que permite no cobrarle comisión sobre lo suyo. Si en algún momento
+se decide bajarlo, la contracara es tener que cobrar en otro lado.
 
 ### Sensibilidad al porcentaje de convertidos
 
@@ -207,9 +208,12 @@ variable:
 
 | Convertidos en 90 días | MRR de la red | Margen anual | Ingreso plataforma |
 |---|---|---|---|
-| 1,5% (pesimista) | $37M/mes | $98M | **$146M/año** |
-| 2,5% (base) | $62M/mes | $163M | **$211M/año** |
-| 4% (optimista) | $100M/mes | $261M | **$309M/año** |
+| 1,5% (pesimista) | $34M/mes | $68M | **$116M/año** |
+| 2,4% (base) | $54M/mes | $108M | **$156M/año** |
+| 4% (optimista) | $90M/mes | $180M | **$228M/año** |
+
+El escenario pesimista sigue siendo un negocio, y no por optimismo: el fee SaaS no
+se mueve y el ingreso recurrente no hay que volver a ganárselo cada mes.
 
 Dos conclusiones que importan:
 

@@ -150,9 +150,11 @@ Una tarea no está terminada hasta que:
 - **Hecho:** paso 3 — tenant, theming, tipos, fuentes, claves de storage, logo y
   `/dev/tokens`. Verificado que el override scoped retematiza sin props y que
   cambiar `tenant.json` retematiza todo sin tocar código.
-- **Sigue:** paso 4 — datos mock (`catalog.json` con 18 servicios y 12 productos,
-  abonados, promociones, generador de órdenes y métricas) y las funciones de
-  `src/lib/*` con sus tests.
+- **Hecho:** paso 4 — catálogo de 30 ítems, abonados, promociones, generador
+  determinístico de órdenes, suscripciones y métricas, y todas las funciones de
+  `src/lib/*` con 42 tests.
+- **Sigue:** paso 5 — plan de diseño en `docs/04-diseno-y-ui.md`. **No se codea
+  UI de producto antes de terminarlo y revisarlo.**
 - **A tener en cuenta:**
   - Importes de un solo tiro y mensuales **nunca se suman entre sí**.
   - El generador produce ~2.400 transacciones (ADR-015), así que `/admin/pedidos`

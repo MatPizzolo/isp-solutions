@@ -1,0 +1,251 @@
+{
+  "generatedAt": "2026-09-09T03:00:00.000Z",
+  "periods": {
+    "30": {
+      "funnel": {
+        "subscribers": 58000,
+        "visits": 2818,
+        "validated": 1409,
+        "converted": 587,
+        "transactions": 662,
+        "gmv": 19913160,
+        "ispRevenue": 597395
+      },
+      "recurring": {
+        "activeSubscriptions": 609,
+        "mrr": 4240100,
+        "ispRecurringRevenue": 1727525,
+        "incrementalArpu": 73,
+        "planUpgrades": 72
+      },
+      "averageTicket": 239918,
+      "repeatRate": 0.12265758091993186,
+      "savingsGenerated": {
+        "oneOff": 2244840,
+        "monthly": 1177200
+      },
+      "platformRevenue": 995658,
+      "gmvPerThousandSubscribers": 343330
+    },
+    "60": {
+      "funnel": {
+        "subscribers": 58000,
+        "visits": 5112,
+        "validated": 2556,
+        "converted": 1065,
+        "transactions": 1332,
+        "gmv": 39225840,
+        "ispRevenue": 2549641
+      },
+      "recurring": {
+        "activeSubscriptions": 1389,
+        "mrr": 10244200,
+        "ispRecurringRevenue": 4474300,
+        "incrementalArpu": 177,
+        "planUpgrades": 210
+      },
+      "averageTicket": 221439,
+      "repeatRate": 0.22065727699530516,
+      "savingsGenerated": {
+        "oneOff": 3985960,
+        "monthly": 2413800
+      },
+      "platformRevenue": 2169522,
+      "gmvPerThousandSubscribers": 676308
+    },
+    "90": {
+      "funnel": {
+        "subscribers": 58000,
+        "visits": 6812,
+        "validated": 3406,
+        "converted": 1419,
+        "transactions": 1963,
+        "gmv": 67450220,
+        "ispRevenue": 6918157
+      },
+      "recurring": {
+        "activeSubscriptions": 2123,
+        "mrr": 15722600,
+        "ispRecurringRevenue": 6928775,
+        "incrementalArpu": 271,
+        "planUpgrades": 333
+      },
+      "averageTicket": 222371,
+      "repeatRate": 0.31360112755461594,
+      "savingsGenerated": {
+        "oneOff": 6129280,
+        "monthly": 3691900
+      },
+      "platformRevenue": 4101061,
+      "gmvPerThousandSubscribers": 1162935
+    }
+  },
+  "monthlySeries": [
+    {
+      "month": "2026-04",
+      "gmv": 0,
+      "mrr": 0,
+      "transactions": 0
+    },
+    {
+      "month": "2026-05",
+      "gmv": 0,
+      "mrr": 0,
+      "transactions": 0
+    },
+    {
+      "month": "2026-06",
+      "gmv": 14067000,
+      "mrr": 3434400,
+      "transactions": 393
+    },
+    {
+      "month": "2026-07",
+      "gmv": 15579200,
+      "mrr": 9444700,
+      "transactions": 639
+    },
+    {
+      "month": "2026-08",
+      "gmv": 17448960,
+      "mrr": 15137700,
+      "transactions": 727
+    },
+    {
+      "month": "2026-09",
+      "gmv": 8497560,
+      "mrr": 15942000,
+      "transactions": 204
+    }
+  ],
+  "topItems": [
+    {
+      "itemId": "ent-001",
+      "name": "Smart TV 50\"",
+      "kind": "product",
+      "units": 28,
+      "gmv": 13031200
+    },
+    {
+      "itemId": "hog-002",
+      "name": "Aspiradora robot",
+      "kind": "product",
+      "units": 38,
+      "gmv": 10194960
+    },
+    {
+      "itemId": "tec-001",
+      "name": "Celular gama media",
+      "kind": "product",
+      "units": 27,
+      "gmv": 9368400
+    },
+    {
+      "itemId": "ent-002",
+      "name": "Soundbar 2.1",
+      "kind": "product",
+      "units": 32,
+      "gmv": 4843200
+    },
+    {
+      "itemId": "con-001",
+      "name": "Router Wi-Fi 6 Mesh — pack 2 nodos",
+      "kind": "product",
+      "units": 27,
+      "gmv": 4552280
+    },
+    {
+      "itemId": "hog-001",
+      "name": "Air fryer 5 L",
+      "kind": "product",
+      "units": 32,
+      "gmv": 3701920
+    },
+    {
+      "itemId": "seg-002",
+      "name": "Cámara exterior",
+      "kind": "product",
+      "units": 25,
+      "gmv": 3012680
+    },
+    {
+      "itemId": "seg-001",
+      "name": "Cámara IP interior",
+      "kind": "product",
+      "units": 35,
+      "gmv": 3000880
+    }
+  ],
+  "categorySales": [
+    {
+      "category": "entretenimiento",
+      "gmv": 17874400,
+      "share": 0.24666109711363018,
+      "mrr": 0,
+      "mrrShare": 0
+    },
+    {
+      "category": "hogar",
+      "gmv": 13896880,
+      "share": 0.19177257235244066,
+      "mrr": 0,
+      "mrrShare": 0
+    },
+    {
+      "category": "tecnologia",
+      "gmv": 9368400,
+      "share": 0.1292809729109415,
+      "mrr": 0,
+      "mrrShare": 0
+    },
+    {
+      "category": "conectividad",
+      "gmv": 7167480,
+      "share": 0.0989089692711365,
+      "mrr": 0,
+      "mrrShare": 0
+    },
+    {
+      "category": "seguridad",
+      "gmv": 6013560,
+      "share": 0.08298523626855402,
+      "mrr": 0,
+      "mrrShare": 0
+    },
+    {
+      "category": "plan",
+      "gmv": 5840000,
+      "share": 0.08059016286664729,
+      "mrr": 4816800,
+      "mrrShare": 0.3021452766277757
+    },
+    {
+      "category": "tv",
+      "gmv": 5028500,
+      "share": 0.06939171814639314,
+      "mrr": 4634500,
+      "mrrShare": 0.2907100740183164
+    },
+    {
+      "category": "celular",
+      "gmv": 3601100,
+      "share": 0.049694047174500613,
+      "mrr": 2946500,
+      "mrrShare": 0.18482624513862753
+    },
+    {
+      "category": "seguridad-digital",
+      "gmv": 1856800,
+      "share": 0.02562325589225868,
+      "mrr": 1793500,
+      "mrrShare": 0.11250156818466943
+    },
+    {
+      "category": "gaming",
+      "gmv": 1818300,
+      "share": 0.025091968003497393,
+      "mrr": 1750700,
+      "mrrShare": 0.10981683603061096
+    }
+  ]
+}

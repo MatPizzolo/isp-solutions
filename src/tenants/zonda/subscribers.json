@@ -1,0 +1,87 @@
+[
+  {
+    "id": "sub-104588",
+    "dni": "30111222",
+    "customerNumber": "104588",
+    "name": "Lucía Ferreyra",
+    "planId": "fibra-300",
+    "status": "active",
+    "email": "lucia.ferreyra@example.com",
+    "phone": "+54 9 2477 55-1180",
+    "customerSince": "2021-03-14",
+    "address": {
+      "street": "Los Álamos",
+      "number": "1245",
+      "city": "San Andrés del Río",
+      "postalCode": "B2740"
+    }
+  },
+  {
+    "id": "sub-098231",
+    "dni": "27888999",
+    "customerNumber": "98231",
+    "name": "Martín Solari",
+    "planId": "fibra-600-tv",
+    "status": "active",
+    "email": "martin.solari@example.com",
+    "phone": "+54 9 2477 55-3042",
+    "customerSince": "2019-08-02",
+    "address": {
+      "street": "Rivadavia",
+      "number": "870",
+      "city": "San Andrés del Río",
+      "postalCode": "B2740"
+    }
+  },
+  {
+    "id": "sub-121904",
+    "dni": "33444555",
+    "customerNumber": "121904",
+    "name": "Camila Prieto",
+    "planId": "fibra-100",
+    "status": "active",
+    "email": "camila.prieto@example.com",
+    "phone": "+54 9 2477 55-6613",
+    "customerSince": "2024-11-27",
+    "address": {
+      "street": "Belgrano",
+      "number": "412",
+      "city": "Villa Sarmiento",
+      "postalCode": "B2741"
+    }
+  },
+  {
+    "id": "sub-077120",
+    "dni": "20555666",
+    "customerNumber": "77120",
+    "name": "Roberto Ibáñez",
+    "planId": "fibra-300",
+    "status": "suspended",
+    "email": "roberto.ibanez@example.com",
+    "phone": "+54 9 2477 55-2287",
+    "customerSince": "2017-05-19",
+    "address": {
+      "street": "San Martín",
+      "number": "2033",
+      "city": "San Andrés del Río",
+      "postalCode": "B2740"
+    }
+  },
+  {
+    "id": "sub-045012",
+    "dni": "18999000",
+    "customerNumber": "45012",
+    "name": "Elena Carrizo",
+    "planId": "fibra-100",
+    "status": "inactive",
+    "email": "elena.carrizo@example.com",
+    "phone": "+54 9 2477 55-9074",
+    "customerSince": "2016-02-08",
+    "address": {
+      "street": "Mitre",
+      "number": "156",
+      "city": "Villa Sarmiento",
+      "postalCode": "B2741"
+    }
+  }
+]

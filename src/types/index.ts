@@ -376,10 +376,20 @@ export interface TopItem {
   gmv: number;
 }
 
+/**
+ * Dos cortes por categoría, porque miden cosas distintas y uno solo engaña.
+ *
+ * En GMV un televisor de $520.000 pesa como veintiocho meses de un servicio de
+ * $9.900, así que el hardware domina el gráfico por construcción. El corte de
+ * `mrr` muestra qué categorías dejan ingreso que vuelve todos los meses, que es
+ * el negocio. El dashboard lleva el recurrente adelante y el GMV como apoyo.
+ */
 export interface CategorySales {
   category: CategoryId;
   gmv: number;
   share: number;
+  mrr: number;
+  mrrShare: number;
 }
 
 export interface Metrics {

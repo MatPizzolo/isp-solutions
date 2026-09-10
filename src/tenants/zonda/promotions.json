@@ -1,0 +1,33 @@
+[
+  {
+    "id": "promo-001",
+    "name": "Semana de la conectividad",
+    "type": "banner",
+    "bannerTitle": "Semana de la conectividad",
+    "bannerSubtitle": "Sumá lo que te falta a tu conexión y pagalo en tu factura de siempre.",
+    "startsAt": "2026-09-01",
+    "endsAt": "2026-09-14",
+    "active": true
+  },
+  {
+    "id": "promo-002",
+    "name": "Combo pantalla grande",
+    "type": "tier_discount",
+    "discount": 0.15,
+    "category": "entretenimiento",
+    "tier": "premium",
+    "startsAt": "2026-09-05",
+    "endsAt": "2026-09-30",
+    "active": true
+  },
+  {
+    "id": "promo-003",
+    "name": "Vuelta al cole",
+    "type": "category_discount",
+    "discount": 0.1,
+    "category": "tecnologia",
+    "startsAt": "2026-02-15",
+    "endsAt": "2026-03-15",
+    "active": true
+  }
+]

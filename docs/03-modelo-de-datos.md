@@ -371,13 +371,22 @@ interface Metrics {
   monthlySeries: { month: string; gmv: number; mrr: number; transactions: number }[];
   topItems: { itemId: string; name: string; kind: 'product' | 'service';
               units: number; gmv: number }[];   // 8
-  categorySales: { category: CategoryId; gmv: number; share: number }[];
+  categorySales: { category: CategoryId;
+                   gmv: number; share: number;      // vista transaccional
+                   mrr: number; mrrShare: number }[];  // vista recurrente
 }
 ```
 
 `savingsGenerated` viene partido en dos porque el ahorro de un solo tiro y el
 ahorro mensual no son comparables. En el reporte se muestran uno al lado del otro:
 *"les ahorramos $X una vez y $Y por mes"*. El segundo es el que retiene.
+
+`categorySales` trae **los dos cortes** por el mismo motivo. En GMV un televisor de
+$520.000 pesa como veintiocho meses de un servicio de $9.900, así que el hardware
+domina ese gráfico por construcción. El corte de `mrr` muestra qué categorías
+dejan ingreso que vuelve todos los meses; ahí adelante están los upgrades del
+propio plan del ISP. El dashboard lleva el recurrente adelante y el GMV como
+apoyo.
 
 El generador valida los invariantes de `07-metricas-y-kpis.md` antes de escribir
 el archivo y falla ruidosamente si alguno no se cumple.
