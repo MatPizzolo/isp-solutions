@@ -20,7 +20,12 @@ La demo existe para que esta frase se vea en lugar de explicarse:
 |---|---|---|
 | 1 | ¿Cómo lo ve mi abonado? | Tienda con su marca; precio exclusivo al validar el DNI |
 | 2 | ¿Qué controlo yo? | Panel con catálogo, promociones, pedidos, reportes y marca |
-| 3 | ¿Qué gano? | Dashboard con el funnel de `07-metricas-y-kpis.md` |
+| 3 | ¿Qué gano? | Dashboard con el funnel, el MRR y el ingreso recurrente |
+| 4 | ¿Y esto qué me cuesta? | Nada del piloto: sin stock, sin logística, y cero comisión sobre sus propios planes |
+
+La cuarta no está en el kickoff y apareció con el reencuadre. Es la objeción real
+de un operador chico —"¿en qué me estoy metiendo?"— y la demo la responde
+mostrando que el flujo de servicios no tiene envío, ni tarjeta, ni depósito.
 
 ## Guion de la demo y prioridades
 
@@ -31,15 +36,22 @@ orden de QA y qué se recorta si falta tiempo.
 |---|---|---|---|
 | 1 | "Así lo ve tu abonado": landing con la marca del ISP y el gate de DNI | `/` | **P1** |
 | 2 | Validar DNI `30111222` → revelación del precio exclusivo | `/ingresar` → `/tienda` | **P1** |
-| 3 | Detalle: ahorro en $ y %, y el par premium ("Incluido en tu plan") | `/beneficio/[slug]` | **P1** |
-| 4 | "Esto es tu marca, no la nuestra": cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
-| 5 | Comprar: carrito → checkout simulado → pedido confirmado | `/carrito` → `/checkout` → `/pedido/[id]` | P2 |
-| 6 | "Esto es lo que ganás": funnel e ingreso estimado del ISP | `/admin/dashboard` | P2 |
-| 7 | Reporte del piloto imprimible | `/admin/reportes` | P2 |
-| 8 | Resto de las pantallas | varias | P3 |
+| 3 | "Y esto te vende lo tuyo": el módulo de upgrade de plan, personalizado según el abonado | `/tienda` | **P1** |
+| 4 | El mismo servicio con dos abonados: $9.900 para Lucía, "Incluido en tu plan" para Martín | `/beneficio/[slug]` | **P1** |
+| 5 | "Esto es tu marca, no la nuestra": cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
+| 6 | Contratar un servicio en dos pasos, sin tarjeta ni dirección | `/beneficio` → `/checkout` → `/pedido/[id]` | P2 |
+| 7 | "Esto es lo que ganás": funnel, MRR e ingreso del ISP | `/admin/dashboard` | P2 |
+| 8 | Reporte del piloto imprimible | `/admin/reportes` | P2 |
+| 9 | Comprar un producto físico: carrito → checkout → envío | `/carrito` → `/checkout` → `/pedido/[id]` | P3 |
+| 10 | Resto: mis servicios, mis pedidos, cómo funciona, catálogo, promos, pedidos, abonados | varias | P3 |
 
 **Regla:** P1 completo y pulido antes de tocar P2; P2 antes de P3. Una P1 impecable
 vale más que las dieciséis pantallas a medias.
+
+Los cinco momentos P1 viven sobre cinco pantallas: el momento 3 es un módulo
+dentro de `/tienda`, no una vista aparte. Si falta tiempo, lo primero que se
+recorta es la compra de producto físico, que bajó a P3 porque es el flujo que
+cualquier tienda tiene (`ADR-032`).
 
 ## Incluido
 
@@ -87,9 +99,10 @@ Leyenda: ⬜ pendiente · 🟡 en curso · ✅ listo
 | `/tienda` (con el módulo "Tu plan") | P1 | ⬜ |
 | `/tienda/[category]` | P1 | ⬜ |
 | `/beneficio/[slug]` (servicio y producto) | P1 | ⬜ |
-| `/carrito` | P2 | ⬜ |
-| `/checkout` | P2 | ⬜ |
+| `/checkout` (camino de servicio, dos pasos) | P2 | ⬜ |
 | `/pedido/[id]` | P2 | ⬜ |
+| `/carrito` | P3 | ⬜ |
+| `/checkout` (camino con producto físico, tres pasos) | P3 | ⬜ |
 | `/mis-servicios` | P3 | ⬜ |
 | `/mis-pedidos` | P3 | ⬜ |
 | `/como-funciona` | P3 | ⬜ |

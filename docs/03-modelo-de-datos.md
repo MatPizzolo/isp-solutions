@@ -67,8 +67,9 @@ interface RevenueShare {
 
 En productos físicos la plataforma se queda con más que el ISP, porque pone el
 catálogo y el fulfillment. En servicios se invierte, porque el ISP pone la
-relación con el cliente y la cobranza. En upgrades de plan la plataforma cobra
-apenas una comisión de canal sobre un servicio que es enteramente del ISP.
+relación con el cliente y la cobranza. **En upgrades de plan `platform` es cero**:
+el proveedor es el ISP, así que cobrarle ahí sería cobrarle por vender lo suyo
+(`ADR-029`). El cero queda explícito en la configuración, no hardcodeado.
 
 **Regla de copy con marca:** todo texto que nombre al ISP, al plan o a las cuotas
 se interpola desde el tenant. Nunca se escribe el nombre del ISP ni una cantidad

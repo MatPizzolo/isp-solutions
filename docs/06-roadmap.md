@@ -42,6 +42,18 @@ factura, y conviene proponerlo así en la reunión.
 **Se termina cuando** hay 90 días de operación medidos con el funnel de
 `07-metricas-y-kpis.md` y una decisión fundamentada de escalar o no.
 
+### Ideas que quedaron fuera de la Fase 0 pero valen para el piloto
+
+- **Promoción de "primer mes sin cargo".** Para un servicio recurrente es mucho
+  más potente que un porcentaje de descuento: elimina la barrera de entrada sin
+  tocar el precio de lista. Queda fuera de la demo porque complica el cálculo de
+  precio y el del MRR, pero es probablemente la primera promo que conviene correr.
+- **Baja de servicios desde la tienda.** En la demo solo se dan de alta. Para
+  producción hace falta, y además es una señal de confianza: un servicio del que
+  se puede salir con un clic se contrata más fácil.
+- **Aviso de permanencia por vencer**, para que el abonado renueve o cambie antes
+  de que se le venza y no se entere por la factura.
+
 ## Fase 2 — Network (5 a 10 ISPs)
 
 **Objetivo:** convertir el caso de éxito en un producto replicable.

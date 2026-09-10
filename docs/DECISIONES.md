@@ -640,19 +640,44 @@ Un mismo porcentaje para los tres casos daría cifras sin sentido.
 "revenueShare": {
   "products":     { "isp": 0.03, "platform": 0.05 },
   "services":     { "isp": 0.25, "platform": 0.15 },
-  "planUpgrades": { "isp": 0.90, "platform": 0.10 }
+  "planUpgrades": { "isp": 1.00, "platform": 0.00 }
 }
 ```
 
 **Hipótesis de trabajo, no números negociados.** El reparto real se acuerda con
 cada ISP; estos valores existen para que el dashboard muestre cifras coherentes.
 
+### La regla de fondo: el ISP nunca paga comisión sobre lo que ya es suyo
+
+Había dos cosas mezcladas bajo la palabra "comisión", y separarlas ordena el
+modelo entero:
+
+| | De dónde sale el margen de la plataforma | ¿El ISP paga algo? |
+|---|---|---|
+| **Producto físico** | Del proveedor: se compra mayorista y se vende minorista | No |
+| **Servicio de terceros** | Del proveedor del servicio, por llevarle distribución | No |
+| **Upgrade de plan** | No hay proveedor — **el proveedor es el ISP** | Sería lo único que le cobraríamos |
+
+Por eso `planUpgrades.platform` es **cero**. El módulo de upgrade de plan es una
+herramienta que le damos al ISP para vender lo suyo, no un canal por el que le
+cobramos. La diferencia entre *"te ayudo a vender lo tuyo"* y *"te cobro por
+vender lo tuyo"* se juega enteramente en ese número, y en una reunión donde
+estamos pidiendo acceso a su base de abonados, cobrarle por vender su propio
+producto es el peor lugar posible para poner un porcentaje.
+
+El `0.00` queda **explícito en la configuración**, no hardcodeado: es una decisión
+comercial revisable en la Fase 2 o 3, no una propiedad del software.
+
 **Consecuencias.**
 
 - En productos físicos la plataforma gana más que el ISP, porque asume el catálogo
-  y el fulfillment. En servicios se invierte, porque el ISP pone la relación y la
-  cobranza. En upgrades de plan la plataforma cobra una comisión de canal sobre un
-  servicio que es enteramente del ISP.
+  y el fulfillment. En servicios se invierte, porque el ISP pone la relación con
+  el cliente y la cobranza. En upgrades de plan el ISP se queda con todo.
+- El ingreso del ISP **sube** respecto del reparto anterior, y el de la plataforma
+  baja. Es a propósito: el upgrade de plan es el argumento de venta de la
+  propuesta, no una fuente de ingresos.
+- La plataforma se financia con el fee SaaS, el setup y el margen de proveedor.
+  Ninguna de las tres es una comisión sobre las ventas del ISP.
 - Se desvía de la forma de `tenant.json` que fija `KICKOFF.md` §4. Como el kickoff
   queda intacto (`ADR-024`), esta es la única constancia del cambio.
 - `metrics.ts` y el dashboard calculan el ingreso del ISP sumando los tres tramos,
@@ -678,3 +703,86 @@ tienen que estar en castellano.
 componente de detalle discrimina por `kind`: el producto muestra stock, envío y
 cuotas; el servicio muestra permanencia, cuándo se activa y desde qué factura se
 cobra.
+
+---
+
+## ADR-031 — El copy del tenant se reescribe para el eje de servicios
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Cambia `storeCopy` en `KICKOFF.md` §4**
+
+**Contexto.** `storeCopy` es lo primero que ve el dueño del ISP en la landing, que
+es la pantalla 1 del guion de demo. El texto del kickoff es de una tienda de
+productos:
+
+> *"Beneficios exclusivos para clientes de Zonda Fibra"*
+> *"Tecnología, conectividad y hogar con precios que solo tenés por ser cliente."*
+> Paso 3: *"Comprás con precio exclusivo y lo recibís en tu casa."*
+
+Bajo el encuadre de servicios, el tercer paso —recibirlo en tu casa— describe el
+caso menos importante, y el subtítulo enumera categorías de hardware.
+
+**Decisión.** Nuevo `storeCopy` para el tenant de la demo:
+
+```json
+"storeCopy": {
+  "heroTitle": "Todo lo que podés sumar a tu Zonda Fibra",
+  "heroSubtitle": "TV, celular, gaming y seguridad digital, con precio de cliente y en la misma factura que ya pagás.",
+  "howItWorks": [
+    "Ingresá tu DNI o número de cliente.",
+    "Confirmamos que tu cuenta esté activa.",
+    "Lo sumás a tu factura y lo usás enseguida."
+  ]
+}
+```
+
+**Por qué así.**
+
+- *"Todo lo que podés sumar"* posiciona la tienda como una extensión del servicio
+  que el abonado ya tiene, no como un negocio aparte. Es la idea de "Mi Cuenta".
+- *"en la misma factura que ya pagás"* es el diferencial dicho en seis palabras, y
+  está arriba de todo en lugar de escondido en el checkout.
+- El tercer paso ya no habla de logística. Habla de que no hay fricción.
+
+**Consecuencias.** El texto vive en `tenant.json`, así que otro ISP lo cambia sin
+tocar código. La regla de interpolación no cambia: ningún componente escribe el
+nombre del ISP.
+
+---
+
+## ADR-032 — Guion de demo actualizado al eje de servicios
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Reemplaza `KICKOFF.md` §2.1**
+
+**Contexto.** El guion de demo define el orden de implementación, el orden de QA y
+qué se recorta si falta tiempo. El del kickoff recorre una tienda de productos y
+no muestra ninguno de los dos momentos que ahora son los más persuasivos: el
+servicio incluido en el plan premium y el módulo de upgrade del plan propio.
+
+**Decisión.** Guion nuevo:
+
+| # | Momento | Ruta | Prioridad |
+|---|---|---|---|
+| 1 | "Así lo ve tu abonado": landing con la marca del ISP y el gate de DNI | `/` | **P1** |
+| 2 | Validar DNI `30111222` → revelación del precio | `/ingresar` → `/tienda` | **P1** |
+| 3 | **"Y esto te vende lo tuyo": el módulo de upgrade de plan, personalizado** | `/tienda` | **P1** |
+| 4 | El mismo servicio: $9.900 para Lucía, "Incluido en tu plan" para Martín | `/beneficio/[slug]` | **P1** |
+| 5 | "Esto es tu marca, no la nuestra": cambiar dos colores en vivo | `/admin/marca` | **P1** |
+| 6 | Contratar un servicio en dos pasos, sin tarjeta ni dirección | `/beneficio` → `/checkout` → `/pedido/[id]` | P2 |
+| 7 | "Esto es lo que ganás": funnel, MRR e ingreso del ISP | `/admin/dashboard` | P2 |
+| 8 | Reporte del piloto imprimible | `/admin/reportes` | P2 |
+| 9 | Comprar un producto físico: carrito → checkout → envío | `/carrito` → `/checkout` → `/pedido/[id]` | P3 |
+| 10 | Resto: mis servicios, mis pedidos, cómo funciona, catálogo, promos, pedidos, abonados | varias | P3 |
+
+**Qué cambió y por qué.**
+
+- **Entra el momento 3.** Es el único de todo el guion que responde "y esto además
+  me vende a mí". No cuesta una pantalla nueva: el módulo vive en `/tienda`, que
+  ya es P1.
+- **El momento 4 pasa a ser un par, no una pantalla.** Mostrar el mismo servicio
+  con dos abonados distintos hace concreto el beneficio del plan premium; un 12%
+  de descuento explicado no lo hace.
+- **El alta de servicio sube a P2 y la compra física baja a P3.** El flujo de dos
+  pasos, sin tarjeta ni dirección, es el que muestra el diferencial. El carrito
+  con envío es el flujo que cualquier tienda tiene.
+
+**Consecuencias.** Cinco momentos P1 en lugar de cuatro, pero sobre las mismas
+cinco pantallas. El costo marginal es un módulo, no una vista. Si falta tiempo, lo
+que se recorta primero es la compra física completa, que pasó a P3.

@@ -149,14 +149,19 @@ invariantes.
 | GMV del período | ~$147M |
 | **MRR al cierre** | **~$18,1M por mes** |
 | ARPU incremental | ~$311 por abonado por mes |
-| Ingreso del ISP en el período | ~$16,9M |
-| Ingreso recurrente del ISP | ~$7,5M por mes |
+| Ingreso del ISP en el período | ~$17,7M |
+| **Ingreso recurrente del ISP** | **~$7,9M por mes** |
+| Del cual, upgrades de plan | ~$4,6M por mes, sin comisión de la plataforma |
 
 Comparado con un modelo de solo productos físicos, el GMV es bastante menor y **el
-ingreso del ISP es mayor**, porque el reparto sobre servicios y sobre upgrades del
-plan propio es mucho más favorable que sobre reventa de hardware. Esa es la
-conversación que conviene tener en la reunión: menos volumen, más margen, y que
-vuelve todos los meses.
+ingreso del ISP es mayor**, porque el reparto sobre servicios es más favorable que
+sobre reventa de hardware y porque los upgrades de su propio plan quedan enteros
+para él (`ADR-029`). Esa es la conversación que conviene tener en la reunión:
+menos volumen, más margen, y que vuelve todos los meses.
+
+El renglón de upgrades merece decirse en voz alta: **de los $7,9M mensuales que le
+quedan al ISP, $4,6M salen de vender su propio plan y no pagan comisión.** El
+módulo que los genera es parte de la plataforma.
 
 ## Qué NO se mide en la Fase 0
 

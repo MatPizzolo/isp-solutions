@@ -10,6 +10,18 @@ servicios son el eje** (`ADR-024`).
 Fase 0 = demo navegable con datos mock del tenant ficticio **Zonda Fibra**.
 Sin backend, sin base de datos, sin pagos y sin auth reales.
 
+## Los tres principios
+
+Cuando algo no esté definido, se resuelve con estos, en este orden.
+
+1. **La tienda es del ISP, no nuestra.** Su marca, sus colores, su voz, su
+   factura. Nuestro nombre aparece una vez, en chico, en el footer. Si una
+   decisión hace que la plataforma se note más que el operador, está mal.
+2. **El ISP nunca paga comisión sobre lo que ya es suyo.** Los upgrades de su
+   propio plan van con `platform: 0` (`ADR-029`).
+3. **Menos fricción antes que más funciones.** El abonado no crea una cuenta:
+   valida un DNI. No carga una tarjeta: se le suma a la factura que ya paga.
+
 ## Leer antes de tocar código
 
 - `docs/01-alcance-fase-0-demo.md` — qué entra, qué no, y el guion de la demo.
@@ -99,14 +111,18 @@ Camino de QA obligatorio antes de cada commit que toque UI.
 |---|---|---|---|
 | 1 | Landing con la marca del ISP y el gate de DNI | `/` | **P1** |
 | 2 | Validar `30111222` → revelación del precio | `/ingresar` → `/tienda` | **P1** |
-| 3 | Detalle: ahorro en $ y %, y el par premium ("Incluido en tu plan") | `/beneficio/[slug]` | **P1** |
-| 4 | Cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
-| 5 | Carrito → checkout simulado → pedido confirmado | `/carrito` → `/checkout` → `/pedido/[id]` | P2 |
-| 6 | Funnel e ingreso estimado del ISP | `/admin/dashboard` | P2 |
-| 7 | Reporte del piloto imprimible | `/admin/reportes` | P2 |
-| 8 | Resto de las pantallas | varias | P3 |
+| 3 | "Y esto te vende lo tuyo": módulo de upgrade de plan, personalizado | `/tienda` | **P1** |
+| 4 | El mismo servicio: $9.900 para Lucía, "Incluido en tu plan" para Martín | `/beneficio/[slug]` | **P1** |
+| 5 | Cambiar dos colores y ver la landing cambiar en vivo | `/admin/marca` | **P1** |
+| 6 | Contratar un servicio en dos pasos, sin tarjeta ni dirección | `/beneficio` → `/checkout` → `/pedido/[id]` | P2 |
+| 7 | Funnel, MRR e ingreso del ISP | `/admin/dashboard` | P2 |
+| 8 | Reporte del piloto imprimible | `/admin/reportes` | P2 |
+| 9 | Comprar un producto físico: carrito → checkout → envío | `/carrito` → `/checkout` → `/pedido/[id]` | P3 |
+| 10 | Resto de las pantallas | varias | P3 |
 
-**P1 completo y pulido antes de tocar P2; P2 antes de P3.**
+**P1 completo y pulido antes de tocar P2; P2 antes de P3.** Los cinco momentos P1
+viven sobre cinco pantallas: el momento 3 es un módulo dentro de `/tienda`, no una
+vista aparte (`ADR-032`).
 
 ## Definition of done
 
@@ -125,9 +141,10 @@ Una tarea no está terminada hasta que:
 - **Hecho:** paso 1 — documentación base. Paso 2 — Next.js 16.3.4 + React 19 +
   Tailwind 4 + TypeScript estricto, con Vitest, Prettier, tsx y Playwright.
   Todo verificado: typecheck, lint, test, format y build limpios.
-- **Reencuadre (ADR-024 a ADR-030):** el proyecto pasó de tienda de productos
-  físicos a tienda de servicios sobre la factura del ISP. Los docs ya están
-  alineados; `KICKOFF.md` queda intacto como especificación original.
+- **Reencuadre (ADR-024 a ADR-032):** el proyecto pasó de tienda de productos
+  físicos a tienda de servicios sobre la factura del ISP, con visión y misión
+  explícitas y cero comisión sobre los planes propios del operador. Los docs
+  están alineados; `KICKOFF.md` queda intacto como especificación original.
 - **Sigue:** paso 3 — tenant, theming y `/dev/tokens`.
 - **A tener en cuenta:**
   - Importes de un solo tiro y mensuales **nunca se suman entre sí**.

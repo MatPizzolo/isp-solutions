@@ -1,5 +1,36 @@
 # Visión y modelo de negocio
 
+## Visión
+
+**Que un cableoperador de 8.000 abonados en el interior pueda ofrecerle a sus
+clientes lo mismo que Movistar o Personal, sin tener un equipo de tecnología.**
+
+Los operadores grandes tienen su "Mi Cuenta": el cliente entra, ve su plan, suma
+servicios y todo se cobra en la misma factura. Es una ventaja competitiva enorme y
+es puramente de software — no depende de la red, ni de la cobertura, ni del
+precio. Hoy queda del lado de quien puede pagar un equipo de producto.
+
+## Misión
+
+Darle a cada operador su propio "Mi Cuenta" en semanas y no en años, y convertir
+su base de abonados en ingreso recurrente **sin que tenga que desarrollar
+software, comprar stock ni operar logística**.
+
+## Los tres principios que ordenan las decisiones
+
+Cuando algo no está definido, se resuelve con estos tres, en este orden:
+
+1. **La tienda es del ISP, no nuestra.** Su marca, sus colores, su voz, su
+   factura. Nuestro nombre aparece una vez, en chico, en el footer. Si una
+   decisión de diseño o de producto hace que la plataforma se note más que el
+   operador, está mal.
+2. **El ISP nunca paga comisión sobre lo que ya es suyo.** Le damos herramientas
+   para vender su propio servicio y no cobramos por eso (`ADR-029`). Nuestro
+   margen sale del proveedor, no del cliente.
+3. **Menos fricción antes que más funciones.** El abonado no crea una cuenta:
+   valida un DNI. No carga una tarjeta: se lo sumamos a la factura que ya paga.
+   Cada paso que se saca vale más que una pantalla que se agrega.
+
 ## Qué es
 
 **Un "Mi Cuenta / Mi Movistar" como servicio, bajo marca blanca, para ISPs y
@@ -81,49 +112,64 @@ este modelo y el de una tienda.
 Un porcentaje único no tendría sentido, porque las tres economías son distintas
 (ver `ADR-029` en `DECISIONES.md`):
 
-| Tipo de ítem | Quién pone qué | Reparto |
-|---|---|---|
-| **Producto físico** | La plataforma pone catálogo, proveedor y fulfillment | La plataforma se queda con más |
-| **Servicio** | El ISP pone la relación con el cliente y la cobranza; la plataforma pone el acuerdo con el proveedor y la operación | El ISP se queda con más |
-| **Upgrade de plan** | El servicio es enteramente del ISP; la plataforma es solo el canal | El ISP se queda con casi todo |
+| Tipo de ítem | De dónde sale nuestro margen | ¿El ISP paga algo? | Reparto |
+|---|---|---|---|
+| **Producto físico** | Del mayorista: se compra al por mayor y se vende al detalle | No | La plataforma se queda con más |
+| **Servicio de terceros** | Del proveedor del servicio, por llevarle distribución | No | El ISP se queda con más |
+| **Upgrade de plan** | No hay margen: **el proveedor es el ISP** | **No — cero comisión** | El ISP se queda con todo |
 
-Esto tiene una consecuencia contraintuitiva y muy útil en la reunión: **el ISP
-puede ganar más con menos GMV**. Un dashboard que solo midiera volumen contaría la
-historia al revés.
+**El ISP nunca paga una comisión sobre lo que ya es suyo** (`ADR-029`). El módulo
+de upgrade de plan es una herramienta que le damos para vender su propio servicio,
+no un canal por el que le cobramos. La plataforma se financia con el fee SaaS, el
+setup y el margen de proveedor: ninguna de las tres es una tajada sobre las ventas
+del operador.
+
+Esto tiene además una consecuencia contraintuitiva y muy útil en la reunión: **el
+ISP puede ganar más con menos GMV**. Un dashboard que solo midiera volumen
+contaría la historia al revés.
 
 ## Recursos clave
 
-- La **capa de elegibilidad**: la integración con el sistema de gestión del ISP.
-  Es lo más difícil de copiar y lo que hace que el beneficio sea real.
-- El **catálogo compartido**: negociado una vez, usado por todos los ISPs. Por eso
-  `catalog.json` es de la plataforma y no del tenant.
-- La **relación con proveedores**, que mejora a medida que crece el volumen agregado.
+Los dos primeros son el foso; los otros dos son la condición para escalar.
+
+- La **capa de elegibilidad**: la integración con el sistema de gestión del ISP,
+  que es lo que hace que el beneficio sea real y verificable.
+- La **integración con la facturación**: poder sumar un concepto a la factura que
+  el operador ya emite. Es la capacidad que ningún e-commerce puede replicar, y
+  es de donde sale toda la ventaja de conversión.
+- La **relación con proveedores de servicios**, que mejora a medida que crece la
+  base agregada de abonados.
 - El **software multi-tenant**, que hace que sumar un ISP sea configuración y no
   desarrollo.
 
 ## Círculo virtuoso
 
 ```
-   más ISPs  ──▶  más abonados alcanzados  ──▶  más volumen de compra
+   más ISPs  ──▶  más abonados conectados  ──▶  más suscripciones activas
       ▲                                                   │
       │                                                   ▼
-  propuesta más   ◀──  mejores precios exclusivos  ◀──  mejor poder
-  atractiva            para el abonado                  de negociación
+  propuesta más   ◀──  mejores servicios y  ◀──  mejor poder de negociación
+  atractiva            mejores precios            con proveedores
 ```
 
-Cada ISP que entra mejora las condiciones de los que ya están. Esa es la razón por
-la que conviene crecer en cantidad de ISPs antes que en profundidad de catálogo.
+Cada ISP que entra mejora las condiciones de los que ya están. Por eso conviene
+crecer en cantidad de operadores antes que en profundidad de catálogo — y por eso
+el catálogo es de la plataforma y no del tenant.
 
 ## Estrategia en tres capas
 
-1. **SaaS.** Vender la tienda white-label como servicio. Ingreso predecible,
-   poco riesgo operativo, sirve para financiar las capas siguientes.
-2. **Marketplace.** Con varios ISPs conectados, agregar la demanda y negociar
-   directo con proveedores. Acá aparece el margen sobre producto.
-3. **Importación propia.** Con volumen sostenido, importar las categorías de mayor
-   rotación bajo marca propia. Acá está el margen grande, y no antes.
+1. **SaaS + servicios.** La tienda con la marca del operador y un catálogo de
+   servicios ya negociado. Ingreso recurrente desde el primer mes, riesgo
+   operativo casi nulo, y es lo que financia las capas siguientes.
+2. **Red.** Con varios ISPs conectados, negociar directo con proveedores de
+   servicios —mejores condiciones, exclusividades regionales— y recién ahí sumar
+   hardware con volumen agregado.
+3. **Servicio propio.** Con base suficiente, dejar de revender: telefonía móvil de
+   marca blanca para que el operador la venda como propia, TV propia, e
+   importación en las categorías de hardware de mayor rotación.
 
-Cada capa financia y valida a la siguiente. Saltear la primera es el error clásico.
+Cada capa financia y valida a la siguiente. Saltear la primera es el error clásico:
+negociar con proveedores sin base instalada es negociar sin nada que ofrecer.
 
 ## Escenarios de referencia
 
@@ -134,19 +180,24 @@ Cada capa financia y valida a la siguiente. Saltear la primera es el error clás
 
 Supuestos comunes, extrapolados del período de referencia de
 `07-metricas-y-kpis.md`: ISP promedio de 20.000 abonados; MRR de $312 por abonado
-por mes en régimen; ingreso de la plataforma de $75 por abonado por mes entre
-servicios, upgrades y hardware; fee SaaS de $400.000 por ISP por mes.
+por mes en régimen; margen de la plataforma de **$68 por abonado por mes** entre
+servicios y hardware —los upgrades de plan no aportan nada, por `ADR-029`—; fee
+SaaS de $400.000 por ISP por mes.
 
-| Escenario | ISPs | Abonados | MRR de la red | Comisiones anuales | SaaS anual | Ingreso plataforma |
+| Escenario | ISPs | Abonados | MRR de la red | Margen anual | SaaS anual | Ingreso plataforma |
 |---|---|---|---|---|---|---|
-| Red inicial | 10 | 200.000 | $62M/mes | $180M | $48M | **$228M/año** |
-| Red media | 50 | 1.000.000 | $312M/mes | $900M | $240M | **$1.140M/año** |
-| Red consolidada | 100 | 2.000.000 | $624M/mes | $1.800M | $480M | **$2.280M/año** |
+| Red inicial | 10 | 200.000 | $62M/mes | $163M | $48M | **$211M/año** |
+| Red media | 50 | 1.000.000 | $312M/mes | $816M | $240M | **$1.056M/año** |
+| Red consolidada | 100 | 2.000.000 | $624M/mes | $1.632M | $480M | **$2.112M/año** |
 
 La columna que importa no es la última, es **el MRR de la red**: es la base sobre
 la que se negocia con proveedores y la que le da previsibilidad al negocio. Un
 ingreso recurrente de esa magnitud vale bastante más que un GMV transaccional
 equivalente.
+
+Notar que el fee SaaS pesa entre un 20% y un 25% del total. No es un detalle
+administrativo: es el único ingreso que no depende de que el operador venda, y es
+lo que permite no tener que cobrarle comisión sobre lo suyo.
 
 ### Sensibilidad al porcentaje de convertidos
 
@@ -154,11 +205,11 @@ El supuesto más frágil sigue siendo qué proporción de abonados llega a contr
 algo. Sobre el escenario de 10 ISPs (200.000 abonados), moviendo solo esa
 variable:
 
-| Convertidos en 90 días | MRR de la red | Comisiones anuales | Ingreso plataforma |
+| Convertidos en 90 días | MRR de la red | Margen anual | Ingreso plataforma |
 |---|---|---|---|
-| 1,5% (pesimista) | $37M/mes | $108M | **$156M/año** |
-| 2,5% (base) | $62M/mes | $180M | **$228M/año** |
-| 4% (optimista) | $100M/mes | $288M | **$336M/año** |
+| 1,5% (pesimista) | $37M/mes | $98M | **$146M/año** |
+| 2,5% (base) | $62M/mes | $163M | **$211M/año** |
+| 4% (optimista) | $100M/mes | $261M | **$309M/año** |
 
 Dos conclusiones que importan:
 

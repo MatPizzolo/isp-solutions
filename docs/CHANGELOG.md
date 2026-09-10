@@ -5,6 +5,41 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Cierre del reencuadre — visión, misión y cero comisión sobre lo propio — 2026-09-09
+
+Agregado:
+
+- **Visión y misión explícitas** en `00-vision-y-modelo-de-negocio.md`, más **tres
+  principios** que resuelven lo que no esté definido. También en `CLAUDE.md`, que
+  es donde se consultan al trabajar.
+- Cuarta pregunta de la demo: *"¿y esto qué me cuesta?"*. Es la objeción real de un
+  operador chico y el flujo de servicios la responde solo.
+- Ideas registradas para el piloto que quedan fuera de la Fase 0: promoción de
+  primer mes sin cargo, baja de servicios desde la tienda, aviso de permanencia
+  por vencer.
+
+Cambiado:
+
+- **`revenueShare.planUpgrades.platform` pasa de 0,10 a 0,00** (`ADR-029`). El
+  margen de la plataforma sale del proveedor; en un upgrade de plan el proveedor
+  es el ISP, así que cobrar ahí sería cobrarle por vender lo suyo. El cero queda
+  explícito en la configuración, no hardcodeado.
+- Cifras recalculadas: ingreso del ISP en el período ~$17,7M (antes ~$16,9M) e
+  ingreso recurrente ~$7,9M/mes, de los cuales ~$4,6M salen de sus propios planes
+  sin comisión. El ingreso de la plataforma baja a ~$68 por abonado por mes y los
+  escenarios de red se ajustan.
+- **`storeCopy` reescrito** (`ADR-031`): el hero hablaba de tecnología, hogar y
+  entrega a domicilio. Ahora dice qué se puede sumar y que va en la factura que ya
+  se paga.
+- **Guion de demo actualizado** (`ADR-032`): entra el módulo de upgrade de plan
+  como momento P1, el detalle pasa a mostrar el par base/premium, el alta de
+  servicio sube a P2 y la compra de producto físico baja a P3.
+- Estrategia en tres capas: la tercera pasa de "importación propia" a "servicio
+  propio" (telefonía de marca blanca, TV propia), coherente con el eje de
+  servicios.
+- Recursos clave: la integración con la facturación del ISP se suma como foso, al
+  lado de la elegibilidad.
+
 ### Reencuadre — de tienda de productos a tienda de servicios — 2026-09-09
 
 Cambio de eje del proyecto, entre el paso 2 y el paso 3. Llega antes de que
