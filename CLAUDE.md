@@ -74,6 +74,8 @@ deriva de las fechas: no se guarda.
 | `35000111` | — | — | — | No encontrado |
 
 **Admin:** `admin@zondafibra.com.ar` / `demo`
+El usuario se deriva de `admin@${tenant.website}`, no está escrito en ningún
+componente (`ADR-019`).
 
 ## Guion de la demo
 

@@ -334,3 +334,73 @@ instante que tiene que sentirse inmediato.
 suelta el botón. En la Fase 1, cuando `checkSubscriber()` pase a consultar la API
 del ISP, la función se vuelve asíncrona y el formulario gana un estado de carga:
 es un cambio localizado y previsto.
+
+---
+
+## ADR-018 — El camino de la reunión es `/ingresar` → `/tienda`
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El kickoff se contradice. La tabla de la sección 2.1 pone el momento
+2 de la demo como `/ingresar` → `/tienda`. La sección 12 dice que si el abonado
+valida desde el hero, la revelación ocurre ahí mismo y "ese es el momento de la
+reunión". No pueden ser los dos el camino principal: definen dónde va el pulido
+fino y qué se captura en el checkpoint visual.
+
+**Decisión.** Se implementan los dos, pero el camino que se recorre frente al
+dueño del ISP es **`/ingresar` → `/tienda`**. Ahí va el pulido fino y de ahí sale
+la captura del checkpoint del paso 7.
+
+**Alternativas descartadas.** El hero como camino principal (más impactante por no
+tener corte visual, pero deja la pantalla de validación y sus cuatro estados sin
+mostrarse, que es media respuesta a "¿cómo lo ve mi abonado?"). Pulir los dos por
+igual (cuesta tiempo en el paso P1, que es el crítico).
+
+**Consecuencias.**
+
+- La revelación tiene que **sobrevivir una navegación de cliente**. Los providers
+  van en `(store)/layout.tsx`, por encima de las páginas, así que no se desmontan
+  al cambiar de ruta. Si estuvieran en cada página, el flag se consumiría en
+  `/ingresar` y la animación se perdería en el camino.
+- El escalonado corre sobre la **grilla completa del catálogo**, no sobre seis
+  destacados. El índice de retraso se topea en 11 para que los últimos productos
+  no queden colgando varios segundos.
+- `/ingresar` pasa a ser P1 crítica con sus cuatro estados pulidos, no una pantalla
+  de paso.
+
+---
+
+## ADR-019 — El usuario del admin se deriva del dominio del tenant
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** La sección 10 del kickoff da las credenciales del admin como
+`admin@zondafibra.com.ar` / `demo`. Pero la sección 16 exige que
+`grep -ri "zonda" src/components src/app` dé cero resultados y que ningún texto de
+marca viva fuera de `tenant.json` — y `tenant.json` no tiene ningún campo para el
+usuario del admin. Tal como está enunciado, una de las dos reglas se rompe.
+
+**Decisión.** El usuario se deriva: `admin@${tenant.website}`. Con el tenant de la
+demo eso da exactamente `admin@zondafibra.com.ar`. La clave queda en `demo`, que
+no es texto de marca.
+
+**Alternativas descartadas.** Agregar un bloque `demoAdmin: { email, password }` a
+`tenant.json`: más explícito, pero mete en la configuración del tenant un campo
+que en producción no existe, porque el login real llega en la Fase 2. Dejarlo en
+`src/lib/`: pasaría el grep del criterio de aceptación —que solo mira
+`src/components` y `src/app`— pero violaría igual la regla de fondo.
+
+**Consecuencias.** Un tenant nuevo hereda su usuario de admin sin configurar nada.
+Cuando llegue la auth real, esto se borra entero en lugar de migrarse.
+
+---
+
+## ADR-020 — Prefijos de id de producto por categoría
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El kickoff muestra el formato de id solo para una categoría
+(`con-001`, conectividad) y no define las otras cuatro.
+
+**Decisión.** `con-` conectividad · `seg-` seguridad · `ent-` entretenimiento ·
+`tec-` tecnología · `hog-` hogar conectado. Tres dígitos, secuencia por categoría.
+
+**Consecuencias.** Ninguna más allá de la legibilidad. El id no se muestra al
+abonado; la URL usa `slug` y la referencia comercial es el `sku`.

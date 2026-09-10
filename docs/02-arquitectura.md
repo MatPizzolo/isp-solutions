@@ -168,10 +168,15 @@ arquitectura, no decoración.
 
 Dos caminos, los dos implementados:
 
-- **Desde el hero de la landing:** no se navega. La revelación ocurre ahí mismo,
-  sobre los productos destacados. Es el camino que se usa en la reunión.
-- **Desde `/ingresar`:** se redirige a `?next=` o a `/tienda`, y la revelación
-  ocurre al llegar.
+- **Desde `/ingresar`** — *este es el camino de la reunión* (`ADR-018`). Se
+  redirige a `?next=` o a `/tienda` y la revelación ocurre al llegar, escalonada
+  sobre la grilla del catálogo. Dos consecuencias de diseño: la revelación tiene
+  que **sobrevivir la navegación de cliente**, y el escalonado corre sobre muchos
+  más precios que en el hero, así que el índice se topea (ver más abajo) para que
+  los últimos no queden colgando.
+- **Desde el hero de la landing:** no se navega, la revelación ocurre ahí mismo
+  sobre los destacados. Lo pide la sección 12 del kickoff y se implementa, pero no
+  es el camino que se recorre en la reunión.
 
 `prefers-reduced-motion: reduce` desactiva la animación; el resultado final es el
 mismo, se llega sin transición. Se resuelve **solo en CSS**: llamar a `matchMedia()`

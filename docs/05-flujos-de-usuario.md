@@ -48,25 +48,39 @@ el input: se muestra debajo, y el valor ingresado se conserva.
 
 ## 2. La revelación del precio
 
+### Camino de la reunión: `/ingresar` → `/tienda`
+
 ```
-[1]  El abonado escribe su DNI en el hero de la landing y toca "Ver mi precio"
+[1]  El abonado escribe su DNI en /ingresar y toca "Ver mi precio"
 [2]  checkSubscriber() devuelve active            (síncrono, sin red)
 [3]  signIn(): guarda la sesión y arma el flag one-shot en sessionStorage
-[4]  El orquestador consume el flag, lo borra, y pasa a la fase "revelando"
-[5]  Los precios de los destacados, en cascada de izquierda a derecha:
+[4]  Saludo con nombre y plan, y navegación a ?next= o a /tienda
+[5]  Al montar la grilla, el orquestador consume el flag, lo borra
+     y pasa a la fase "revelando"
+[6]  Los precios de la grilla, en cascada de izquierda a derecha
+     y de arriba hacia abajo:
         · el precio público se tacha
         · el precio exclusivo cae en su lugar
         · aparece el chip de ahorro en $ y %
-[6]  Al terminar, la fase pasa a "listo" y no vuelve a ocurrir
+[7]  Al terminar, la fase pasa a "listo" y no vuelve a ocurrir
 ```
 
-Reglas:
+### Camino alternativo: el hero de la landing
+
+Idéntico, salvo que **no hay navegación**: la revelación ocurre en el mismo lugar,
+sobre los productos destacados. Lo pide la sección 12 del kickoff y se implementa,
+pero no es el camino que se recorre en la reunión (`ADR-018`).
+
+Reglas comunes:
 
 - **Una sola vez.** El flag se borra antes de animar, así que ni una recarga ni
   StrictMode en desarrollo la repiten.
-- **Sin navegación** si se validó desde el hero. Ese es el momento de la reunión.
-- Si se validó desde `/ingresar`, la revelación ocurre en la primera pantalla con
-  precios que se renderiza después (`?next=` o `/tienda`).
+- **La revelación sobrevive el cambio de ruta.** Los providers viven en
+  `(store)/layout.tsx`, por encima de las páginas, así que no se desmontan al
+  navegar de `/ingresar` a `/tienda`.
+- **El escalonado se topea.** Sobre la grilla completa hay muchos más precios que
+  sobre los seis destacados; a partir del índice 11 el retraso deja de crecer para
+  que los últimos productos no queden colgando.
 - `prefers-reduced-motion: reduce` desactiva la animación. Se llega al mismo
   resultado, sin transición.
 - Antes de conocer la sesión, cada precio muestra un skeleton del mismo tamaño

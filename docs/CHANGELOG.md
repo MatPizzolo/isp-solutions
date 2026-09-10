@@ -28,6 +28,14 @@ Decidido:
   cumplirse a la vez tal como están enunciados en `KICKOFF.md`. Resuelto a favor
   del funnel: se generan ~1.700 órdenes en lugar de 60, y `/admin/pedidos` lleva
   paginación desde el principio.
+- `ADR-018`: el camino de la reunión es `/ingresar` → `/tienda`, no el hero. La
+  revelación tiene que sobrevivir la navegación de cliente y escalonarse sobre la
+  grilla completa.
+- `ADR-019`: el usuario del admin se deriva de `admin@${tenant.website}`, porque
+  el kickoff lo da como texto literal de marca pero exige que no exista texto de
+  marca fuera de `tenant.json`.
+- `ADR-020`: prefijos de id de producto para las cuatro categorías que el kickoff
+  no define.
 
 Eliminado:
 
