@@ -5,6 +5,40 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Paso 5 — Plan de diseño — 2026-09-10
+
+Agregado:
+
+- `docs/04-diseno-y-ui.md` completo: dirección, tokens, escala tipográfica, el
+  guion de la revelación del precio con tiempos, layout, once wireframes ASCII,
+  los siete estados de cada pantalla, componentes base, admin, copy y piso de
+  calidad.
+- `.impeccable.md` en la raíz con el contexto de diseño consolidado desde
+  `KICKOFF.md` §4 y §12. No es contexto inventado: son decisiones que ya estaban
+  tomadas por escrito, juntas en un solo lugar para que las consuman los skills de
+  diseño y no se re-deriven en cada sesión.
+
+Corregido tras revisar el plan contra la checklist de tells:
+
+- La curva del chip de ahorro tenía overshoot (`cubic-bezier(.2,.9,.3,1.15)`), o
+  sea rebote, justo en el único momento donde el contenido es todo el punto. Ahora
+  hay **una sola curva** para todo el movimiento del proyecto.
+- La cascada de la revelación duraba 1.065 ms, por encima del presupuesto de una
+  animación de entrada. Bajó a **840 ms**.
+- Los tiles del dashboard iban a caer en la plantilla de métrica gigante. Ahora
+  las cuatro cifras van del mismo tamaño y el lugar de héroe lo ocupa el funnel,
+  que es información con forma propia.
+- El separador "·" estaba en cuatro lugares. Queda en dos.
+
+Decidido en el plan, sin cambiar arquitectura:
+
+- Tema **claro**, derivado de la escena de uso y no de la categoría.
+- **Sin sombras**, salvo el drawer del carrito y el panel de modo demo.
+- **El resumen del carrito se compone como una factura**, con dos bloques
+  separados que nunca se suman. Es la estructura que hace visible el diferencial.
+- El módulo "Tu plan" invierte el color y es el único bloque invertido.
+- Un pedido de solo servicios no lleva timeline de entrega.
+
 ### Paso 4 — Datos mock y lógica — 2026-09-10
 
 Agregado:

@@ -153,8 +153,10 @@ Una tarea no está terminada hasta que:
 - **Hecho:** paso 4 — catálogo de 30 ítems, abonados, promociones, generador
   determinístico de órdenes, suscripciones y métricas, y todas las funciones de
   `src/lib/*` con 42 tests.
-- **Sigue:** paso 5 — plan de diseño en `docs/04-diseno-y-ui.md`. **No se codea
-  UI de producto antes de terminarlo y revisarlo.**
+- **Hecho:** paso 5 — plan de diseño completo y revisado contra la checklist de
+  tells. Contexto de diseño consolidado en `.impeccable.md`.
+- **Sigue:** paso 6 — componentes base y contexts. `Price` es el componente más
+  importante: tres renglones siempre, para que la revelación no mueva nada.
 - **A tener en cuenta:**
   - Importes de un solo tiro y mensuales **nunca se suman entre sí**.
   - El generador produce ~2.400 transacciones (ADR-015), así que `/admin/pedidos`
