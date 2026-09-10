@@ -76,4 +76,138 @@
     outline: 2px solid var(--color-accent);
     outline-offset: 2px;
   }
+
+  /* Todas las cifras del proyecto con ancho de dígito fijo: durante la
+     revelación los números no pueden bailar. Nunca monospace. */
+  .tabular {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   Movimiento
+
+   Una sola curva para todo el proyecto. Ninguna sobrepasa 1 en el eje de
+   salida: sin rebote y sin elástico. Un objeto real desacelera, no rebota, y
+   el overshoot llama la atención sobre la animación en vez del contenido.
+   Ver docs/04-diseno-y-ui.md §4.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@theme {
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+}
+
+@keyframes nx-fade-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes nx-rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes nx-pulse {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.45;
+  }
+}
+
+/* El precio exclusivo cae en su renglón */
+@keyframes nx-price-drop {
+  from {
+    opacity: 0;
+    transform: translateY(-0.35em);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* El tachado se dibuja de izquierda a derecha sobre el precio de lista */
+@keyframes nx-strike {
+  from {
+    opacity: 0;
+    transform: scaleX(0);
+  }
+  to {
+    opacity: 1;
+    transform: scaleX(1);
+  }
+}
+
+@keyframes nx-chip-in {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* ───────────────────────────────────────────────────────────────────────────
+   La revelación del precio
+
+   Cascada: retraso = índice × 40 ms, con el índice topeado en 9 desde el
+   componente. Máximo 360 ms de cascada, 840 ms en total. Es el único momento
+   con coreografía del proyecto.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+.nx-price[data-state="revealing"] {
+  --nx-delay: calc(var(--nx-reveal-index, 0) * 40ms);
+}
+
+.nx-price[data-state="revealing"] .nx-price-was {
+  animation: nx-fade-in 180ms var(--ease-out-quart) var(--nx-delay) both;
+}
+
+.nx-price[data-state="revealing"] .nx-price-strike {
+  transform-origin: left center;
+  animation: nx-strike 180ms var(--ease-out-quart) var(--nx-delay) both;
+}
+
+.nx-price[data-state="revealing"] .nx-price-final {
+  animation: nx-price-drop 320ms var(--ease-out-quart) calc(var(--nx-delay) + 100ms) both;
+}
+
+.nx-price[data-state="revealing"] .nx-price-savings {
+  animation: nx-chip-in 220ms var(--ease-out-quart) calc(var(--nx-delay) + 260ms) both;
+}
+
+.nx-skeleton {
+  animation: nx-pulse 1.6s ease-in-out infinite;
+}
+
+/* No se elimina la señal de que algo cambió: se reemplaza por un fundido sin
+   desplazamiento. Resolverlo en CSS y no con matchMedia es obligatorio, porque
+   leer el media query durante el render sería un mismatch de hidratación. */
+@media (prefers-reduced-motion: reduce) {
+  .nx-price[data-state="revealing"] .nx-price-was,
+  .nx-price[data-state="revealing"] .nx-price-strike,
+  .nx-price[data-state="revealing"] .nx-price-final,
+  .nx-price[data-state="revealing"] .nx-price-savings {
+    animation: nx-fade-in 200ms linear both;
+    transform: none;
+  }
+
+  .nx-skeleton {
+    animation: none;
+  }
 }

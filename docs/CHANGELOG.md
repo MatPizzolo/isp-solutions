@@ -5,6 +5,54 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Paso 6 — Componentes base y contexts — 2026-09-10
+
+Agregado:
+
+- `src/components/ui/`: `Button`, `Input`, `Price`, `Badge`, `Chip`, `Drawer`,
+  `Table`, `EmptyState`, `Toast`, `Skeleton`.
+- `src/components/store/ProductPlaceholder.tsx` con cinco composiciones
+  geométricas y variación derivada del id.
+- `src/contexts/`: `SessionContext` (con el orquestador de la revelación),
+  `CartContext`, `AdminContext` y `StoreDataContext`.
+- `src/components/store/StoreProviders.tsx`, el envoltorio cliente que monta
+  `(store)/layout.tsx`.
+- Las animaciones de la revelación en `globals.css`, con una sola curva.
+- `/dev/componentes`: galería de desarrollo que dispara la revelación real, para
+  poder verificar el paso 6 sin construir la tienda.
+
+Corregido, con dos defectos que solo aparecieron al medir:
+
+- **La revelación movía la grilla 4px.** No alcanzaba con que los tres renglones
+  existieran siempre: el chip de ahorro tiene padding vertical y el texto
+  bloqueado no, así que el renglón C crecía al revelarse. Los tres renglones
+  pasan a tener **altura fija**. Medido con Playwright, no supuesto.
+- **El chip de ahorro se salía de la tarjeta** al partirse en dos líneas. Decía
+  "Ahorrás $ 2.100 por mes" cuando el renglón de arriba ya dice "por mes". Se
+  sacó la repetición y el chip no se parte más.
+- Dos de las cinco ilustraciones se parecían demasiado: `conectividad` y
+  `celular` eran las dos arcos. `conectividad` pasa a ser un diagrama de nodos.
+
+Sobre el linter:
+
+- La regla `react-hooks/set-state-in-effect` marca los tres contexts. Acá no
+  aplica: leer `localStorage` después del montaje **es** el patrón seguro para
+  hidratación, y la alternativa que sugiere la regla no deja expresar el estado
+  "todavía no sé", que es el que evita el flash de precio. Queda suprimida a
+  nivel de archivo, con la justificación escrita en cada uno.
+
+Verificado con Playwright:
+
+- **Cero desplazamiento** en los seis bloques de precio al revelarse.
+- Cero chips desbordando su tarjeta.
+- Sin scroll horizontal a 375px.
+- Con `prefers-reduced-motion`, la revelación llega al mismo resultado sin
+  desplazamiento.
+- La cotización premium coincide con los ejemplos de `03-modelo-de-datos.md`:
+  Pack Streaming en "Incluido en tu plan", Pase Gaming a $6.600 y Smart TV a
+  $442.000 con la promo ganándole al descuento premium.
+- Cero errores de consola.
+
 ### Paso 5 — Plan de diseño — 2026-09-10
 
 Agregado:

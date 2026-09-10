@@ -125,6 +125,7 @@ Leyenda: ⬜ pendiente · 🟡 en curso · ✅ listo
 | Ruta | Estado |
 |---|---|
 | `/dev/tokens` | ✅ |
+| `/dev/componentes` | ✅ |
 
 ## Criterios de aceptación
 

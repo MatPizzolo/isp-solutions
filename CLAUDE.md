@@ -155,8 +155,10 @@ Una tarea no está terminada hasta que:
   `src/lib/*` con 42 tests.
 - **Hecho:** paso 5 — plan de diseño completo y revisado contra la checklist de
   tells. Contexto de diseño consolidado en `.impeccable.md`.
-- **Sigue:** paso 6 — componentes base y contexts. `Price` es el componente más
-  importante: tres renglones siempre, para que la revelación no mueva nada.
+- **Hecho:** paso 6 — componentes base, contexts y `/dev/componentes`. La
+  revelación está verificada con cero desplazamiento.
+- **Sigue:** paso 7 — tienda. P1 primero: landing, ingresar, tienda con el módulo
+  "Tu plan", y detalle. **Checkpoint al terminar P1.**
 - **A tener en cuenta:**
   - Importes de un solo tiro y mensuales **nunca se suman entre sí**.
   - El generador produce ~2.400 transacciones (ADR-015), así que `/admin/pedidos`
