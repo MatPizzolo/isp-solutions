@@ -40,3 +40,40 @@ Decidido:
 Eliminado:
 
 - `PROMPT.md`, reemplazado por `KICKOFF.md`.
+
+### Paso 2 — Proyecto Next.js — 2026-09-09
+
+Agregado:
+
+- Next.js 16.3.4 con App Router, React 19.2.8, TypeScript estricto, Tailwind 4.3.3
+  y ESLint 9, instalado en este directorio sin subcarpeta.
+- Dependencias de runtime: `lucide-react`, `recharts`.
+- Toolchain de desarrollo: Vitest 5 (con `vite` explícito, que Vitest 5 ya no
+  incluye), `tsx`, Prettier con `eslint-config-prettier`, y Playwright para las
+  capturas del guion.
+- Scripts `typecheck`, `test`, `test:watch`, `format`, `format:check` y
+  `mock:generate`.
+- `vitest.config.mts` con el alias `@/` espejando `tsconfig.json`.
+- `src/lib/format.ts` con `formatARS()` y sus tests (`ADR-023`).
+
+Decidido:
+
+- `noUncheckedIndexedAccess` activado (`ADR-021`).
+- Prettier no toca Markdown (`ADR-022`).
+- `formatARS()` adelantado como prueba de humo del toolchain (`ADR-023`).
+
+Notas de instalación:
+
+- `create-next-app` rechaza directorios no vacíos: `KICKOFF.md`, `README.md`,
+  `CLAUDE.md` y `.env.example` se movieron temporalmente y se restauraron después.
+- La plantilla pisó `.gitignore`, y su regla `.env*` habría dejado `.env.example`
+  fuera del repositorio. Se fusionó a mano.
+- `esbuild` se agregó a `onlyBuiltDependencies` en `pnpm-workspace.yaml`; sin su
+  script de instalación, Vitest no arranca.
+
+Verificado:
+
+- `pnpm typecheck`, `pnpm lint`, `pnpm test` (4 tests), `pnpm format:check` y
+  `pnpm build` pasan limpios.
+- Playwright levanta el servidor de desarrollo, carga la página y reporta cero
+  errores de consola.

@@ -3,6 +3,10 @@
 /.pnp
 .pnp.*
 .yarn/*
+!.yarn/patches
+!.yarn/plugins
+!.yarn/releases
+!.yarn/versions
 
 # build
 /.next/
@@ -17,7 +21,7 @@ next-env.d.ts
 /blob-report
 /playwright/.cache
 
-# entorno
+# entorno — .env.example SÍ se versiona, es la referencia de configuración
 .env
 .env*.local
 

@@ -108,9 +108,21 @@ Una tarea no está terminada hasta que:
 
 ## Estado actual
 
-- **Hecho:** paso 1 — documentación base (`docs/` completo salvo el plan de
-  diseño, que es esqueleto hasta el paso 5), `CLAUDE.md`, `README.md`,
-  `.env.example`, `.gitignore`.
-- **Sigue:** paso 2 — inicializar el proyecto Next.js en este directorio.
+- **Hecho:** paso 1 — documentación base. Paso 2 — Next.js 16.3.4 + React 19 +
+  Tailwind 4 + TypeScript estricto, con Vitest, Prettier, tsx y Playwright.
+  Todo verificado: typecheck, lint, test, format y build limpios.
+- **Sigue:** paso 3 — tenant, theming y `/dev/tokens`.
 - **A tener en cuenta:** por ADR-015 el generador produce ~1.700 órdenes, así que
-  `/admin/pedidos` necesita paginación desde el principio.
+  `/admin/pedidos` necesita paginación desde el principio. El theming usa
+  `@theme inline` (ADR-011): las variables inyectadas son `--brand-*` y las claves
+  del tema `--color-*`; no pueden llamarse igual.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

@@ -404,3 +404,60 @@ Cuando llegue la auth real, esto se borra entero en lugar de migrarse.
 
 **Consecuencias.** Ninguna más allá de la legibilidad. El id no se muestra al
 abonado; la URL usa `slug` y la referencia comercial es el `sku`.
+
+---
+
+## ADR-021 — `noUncheckedIndexedAccess` activado
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El kickoff pide "TypeScript estricto, sin `any`". `strict: true` no
+cubre el acceso por índice: `products[0]` se tipa como `Product` aunque el arreglo
+esté vacío, y toda la app lee datos de archivos JSON por índice y por clave.
+
+**Decisión.** Sumar `noUncheckedIndexedAccess: true` al `tsconfig.json`.
+
+**Alternativas descartadas.** `exactOptionalPropertyTypes`: también es útil, pero
+genera fricción constante con las props opcionales de React sin aportar seguridad
+donde importa acá.
+
+**Consecuencias.** Buscar un producto o un abonado devuelve `T | undefined` y hay
+que manejar el caso. Es exactamente lo que se quiere: un slug inexistente tiene
+que dar 404, no reventar en runtime.
+
+---
+
+## ADR-022 — Prettier no toca Markdown
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** Prettier reformatea tablas y reflowea párrafos en Markdown. Al
+correrlo por primera vez quiso reescribir los diez documentos de `docs/`, además
+de `KICKOFF.md`.
+
+**Decisión.** `*.md` va a `.prettierignore`. Prettier queda para código
+(`.ts`, `.tsx`, `.css`, `.json`, `.mjs`, `.mts`, `.yaml`).
+
+**Consecuencias.** `KICKOFF.md`, que es el documento de especificación del
+proyecto, no se reformatea nunca. Las tablas y los wireframes ASCII de los docs
+conservan la alineación manual, que es la que los hace legibles.
+
+---
+
+## ADR-023 — `formatARS()` adelantado al paso 2
+**Fecha:** 2026-09-09 · **Estado:** aceptada
+
+**Contexto.** El paso 2 tiene que dejar `pnpm test` verificado, pero los tests
+reales (`pricing`, `eligibility`) son del paso 4. Vitest falla si no encuentra
+ningún archivo de test.
+
+**Decisión.** Adelantar `src/lib/format.ts` con `formatARS()` y su test, en lugar
+de usar `--passWithNoTests`.
+
+**Alternativas descartadas.** `--passWithNoTests` en el script: dejaría un flag
+que después esconde un patrón de búsqueda roto sin avisar.
+
+**Consecuencias.** El toolchain queda verificado contra código real —resolución
+del alias `@/`, transformación de TypeScript, aserciones— y no contra una
+ejecución vacía. El test fija además el espacio duro (U+00A0) que el locale
+`es-AR` mete entre el `$` y la cifra: si una versión de Node o de ICU lo
+cambiara, se rompería el formato de precios en toda la app y este es el único
+lugar donde saltaría.

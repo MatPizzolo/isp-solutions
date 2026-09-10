@@ -1,0 +1,8 @@
+onlyBuiltDependencies:
+  # esbuild necesita su script de instalación para bajar el binario nativo;
+  # sin esto, vite y vitest no arrancan.
+  - esbuild
+
+ignoredBuiltDependencies:
+  - sharp
+  - unrs-resolver

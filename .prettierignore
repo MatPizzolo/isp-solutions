@@ -1,0 +1,17 @@
+.next
+out
+build
+node_modules
+coverage
+pnpm-lock.yaml
+next-env.d.ts
+
+# generados por scripts/generate-mock-data.ts
+src/tenants/*/orders.json
+src/tenants/*/metrics.json
+
+# Markdown: las tablas están alineadas a mano y los saltos de línea son
+# intencionales. KICKOFF.md además es el documento de especificación y no se
+# reformatea. Prettier queda para código.
+*.md
+
