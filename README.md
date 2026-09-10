@@ -75,6 +75,7 @@ ilustraciones de producto salen de `tenant.json`.
 | [`docs/05-flujos-de-usuario.md`](docs/05-flujos-de-usuario.md) | Flujos, estados y mensajes exactos |
 | [`docs/06-roadmap.md`](docs/06-roadmap.md) | Fases 1 a 3 |
 | [`docs/07-metricas-y-kpis.md`](docs/07-metricas-y-kpis.md) | Funnel oficial y definiciones |
+| [`docs/08-integracion-con-isps.md`](docs/08-integracion-con-isps.md) | Cómo se conecta cada ISP (Fase 1 en adelante) |
 | [`docs/DECISIONES.md`](docs/DECISIONES.md) | Log de decisiones |
 | [`docs/CHANGELOG.md`](docs/CHANGELOG.md) | Historial de cambios |
 

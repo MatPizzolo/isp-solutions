@@ -786,3 +786,49 @@ servicio incluido en el plan premium y el módulo de upgrade del plan propio.
 **Consecuencias.** Cinco momentos P1 en lugar de cuatro, pero sobre las mismas
 cinco pantallas. El costo marginal es un módulo, no una vista. Si falta tiempo, lo
 que se recorta primero es la compra física completa, que pasó a P3.
+
+---
+
+## ADR-033 — Integración con los ISPs por niveles, arrancando sin integración
+**Fecha:** 2026-09-09 · **Estado:** aceptada · **Aplica desde la Fase 1**
+
+**Contexto.** Cada ISP tiene un sistema de gestión distinto —Wispro, MikroWisp,
+ISPCube, UISP, desarrollos propios, planillas— y un operador chico normalmente
+**alquila** esa plataforma en lugar de controlarla. Pedirle que consiga desarrollo
+de su proveedor antes de ver un resultado es pedirle que arriesgue primero.
+
+Si conectar un ISP cuesta tres meses de trabajo a medida, el escenario de 50
+operadores no existe. Esto no es un detalle de implementación: es el cuello de
+botella del negocio.
+
+**Decisión.** Un modelo de **conector en cuatro niveles**, documentado en
+`08-integracion-con-isps.md`, donde cada nivel habilita más funcionalidad:
+
+| Nivel | Mecanismo | Alta |
+|---|---|---|
+| 0 | CSV que el operador sube al panel | Días |
+| 1 | Export automático a SFTP, S3 o URL | 1 a 2 semanas |
+| 2 | API de consulta en tiempo real | 2 a 4 semanas |
+| 3 | Bidireccional: facturación y aprovisionamiento | 1 a 3 meses |
+
+**El piloto arranca en nivel 0.** En los niveles 0 a 2 el alta de un servicio
+genera una cola de trabajo en el panel del operador, que la carga en su sistema y
+la marca como procesada. Es manual, pero es acotado, visible y no bloquea el
+arranque.
+
+**Alternativas descartadas.** Exigir API desde el principio: filtra a la mayoría
+de los operadores chicos, que son justamente el segmento. Integrarse con una
+plataforma específica primero: ata la propuesta a que el ISP use esa plataforma.
+
+**Consecuencias para el código de la Fase 0.**
+
+- **`Subscriber` es un contrato.** Su forma en `03-modelo-de-datos.md` es el
+  modelo normalizado; el trabajo de un conector es producir esa forma. Nada fuera
+  de `eligibility.ts` conoce el formato original de ningún ISP.
+- **`checkSubscriber()` tiene que poder volverse asíncrona** sin arrastrar cambios
+  (ya previsto en `ADR-017`).
+- **Los datos de abonados llevan fecha.** En niveles 0 y 1 están desactualizados
+  por definición, y el panel tiene que poder mostrar de cuándo son. Es un campo,
+  pero agregarlo tarde se nota.
+- Nada de esto se implementa en la Fase 0. Se documenta para que las decisiones de
+  hoy no lo bloqueen.

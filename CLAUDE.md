@@ -27,6 +27,8 @@ Cuando algo no esté definido, se resuelve con estos, en este orden.
 - `docs/01-alcance-fase-0-demo.md` — qué entra, qué no, y el guion de la demo.
 - `docs/02-arquitectura.md` — capas, theming, regla de hidratación, puntos de corte.
 - `docs/04-diseno-y-ui.md` — **obligatorio antes de cualquier cambio de diseño.**
+- `docs/08-integracion-con-isps.md` — cómo se conecta un ISP real. No se implementa
+  en la Fase 0, pero condiciona la forma de `Subscriber` y de `eligibility.ts`.
 - `KICKOFF.md` — la especificación completa.
 
 ## Stack y comandos

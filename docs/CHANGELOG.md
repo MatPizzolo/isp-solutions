@@ -5,6 +5,25 @@ Una entrada por paso completado de la sección 15 de `KICKOFF.md`.
 
 ## [No publicado]
 
+### Integración con los sistemas de cada ISP — 2026-09-09
+
+Agregado:
+
+- `docs/08-integracion-con-isps.md`: el modelo de conector por niveles, lo que hay
+  que acordar más allá del software, el checklist de onboarding y qué implica todo
+  eso para el código de hoy. Nada se implementa en la Fase 0.
+- `ADR-033`: cuatro niveles de conector, del CSV manual a la integración
+  bidireccional. **El piloto arranca en nivel 0**, sin desarrollo del lado del
+  operador.
+
+Consecuencias registradas para los pasos 3 y 4:
+
+- `Subscriber` es el **modelo normalizado** y funciona como contrato: el trabajo de
+  un conector es producir esa forma. `subscribers.json` es el ejemplo canónico de
+  la salida de un conector, no "los datos de la demo".
+- Los datos de abonados llevan **fecha de corte**, porque en los niveles 0 y 1 están
+  desactualizados por definición y el panel tiene que poder decirlo.
+
 ### Cierre del reencuadre — visión, misión y cero comisión sobre lo propio — 2026-09-09
 
 Agregado:
